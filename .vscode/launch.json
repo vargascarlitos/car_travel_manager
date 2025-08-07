@@ -1,0 +1,75 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch (Debug)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "--debug"
+            ],
+            "console": "debugConsole",
+            "dartSdkPath": null,
+            "flutterSdkPath": null,
+            "flutterMode": "debug",
+            "showMemoryUsage": true
+        },
+        {
+            "name": "Launch (Profile)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "--profile"
+            ],
+            "console": "debugConsole",
+            "flutterMode": "profile",
+            "showMemoryUsage": true
+        },
+        {
+            "name": "Launch (Release)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "--release"
+            ],
+            "console": "debugConsole",
+            "flutterMode": "release"
+        },
+        {
+            "name": "Launch Android (Debug)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "--debug",
+                "-d", "android"
+            ],
+            "console": "debugConsole",
+            "flutterMode": "debug",
+            "deviceId": "android"
+        },
+        {
+            "name": "Launch Web (Debug)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "args": [
+                "--debug",
+                "-d", "web-server",
+                "--web-port", "3000"
+            ],
+            "console": "debugConsole",
+            "flutterMode": "debug",
+            "deviceId": "web-server"
+        },
+        {
+            "name": "Attach to Process",
+            "type": "dart",
+            "request": "attach",
+            "console": "debugConsole"
+        }
+    ]
+}
