@@ -4,6 +4,7 @@ import '../entities/trip.dart';
 abstract class TripRepository {
   Future<Trip> createTrip(Trip trip);
   Future<Trip?> getTripById(String id);
+  Future<void> updateTrip(Trip trip);
 }
 
 

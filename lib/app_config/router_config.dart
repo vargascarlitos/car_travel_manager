@@ -109,7 +109,7 @@ class AppRouter {
 
   /// Obtener página de viaje activo
   static Widget _getActiveTripPage() {
-    return _getPlaceholderPage('Viaje en Curso', '/trip-active');
+    return const ActiveTripPage();
   }
 
   /// Obtener página de modificación

@@ -59,6 +59,24 @@ class TripLocalDataSource {
       throw appdb.DatabaseException('Error al obtener viaje: $e');
     }
   }
+
+  Future<void> updateTrip(TripModel trip) async {
+    try {
+      final values = Map<String, dynamic>.from(trip.toMap())
+        ..removeWhere((key, value) => value == null)
+        ..remove('id');
+      await _dbHelper.update(
+        _table,
+        values,
+        where: 'id = ?',
+        whereArgs: [trip.id],
+      );
+    } on sqflite.DatabaseException catch (e) {
+      throw appdb.DatabaseException('Error al actualizar viaje: ${e.toString()}');
+    } catch (e) {
+      throw appdb.DatabaseException('Error al actualizar viaje: $e');
+    }
+  }
 }
 
 

@@ -34,6 +34,18 @@ class TripRepositoryImpl implements TripRepository {
       throw appdb.DatabaseException('Failed to get trip: $error');
     }
   }
+
+  @override
+  Future<void> updateTrip(Trip trip) async {
+    try {
+      final model = TripModel.fromEntity(trip);
+      await _localDataSource.updateTrip(model);
+    } on appdb.DatabaseException {
+      rethrow;
+    } catch (error) {
+      throw appdb.DatabaseException('Failed to update trip: $error');
+    }
+  }
 }
 
 
