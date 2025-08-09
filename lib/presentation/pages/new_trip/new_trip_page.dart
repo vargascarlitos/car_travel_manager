@@ -15,9 +15,9 @@ class NewTripPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => NewTripCubit(
-        tripRepository: RepositoryProvider.of(context),
-      ),
+      create:
+          (context) =>
+              NewTripCubit(tripRepository: RepositoryProvider.of(context)),
       child: BlocListener<NewTripCubit, NewTripState>(
         listenWhen: (prev, curr) => prev.status != curr.status,
         listener: (context, state) {
@@ -30,10 +30,12 @@ class NewTripPage extends StatelessWidget {
               ),
             );
           }
-          if (state.status == FormStatus.success && state.lastSavedTripId != null) {
-            context.pushNamed('/preview', arguments: {
-              'tripId': state.lastSavedTripId,
-            });
+          if (state.status == FormStatus.success &&
+              state.lastSavedTripId != null) {
+            context.pushNamed(
+              '/preview',
+              arguments: {'tripId': state.lastSavedTripId},
+            );
           }
         },
         child: const NewTripView(),
@@ -49,6 +51,7 @@ class NewTripView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text('Nuevo Viaje', style: theme.textTheme.titleLarge),
         centerTitle: true,
@@ -74,10 +77,16 @@ class NewTripView extends StatelessWidget {
               _TripCounterCard(),
               SizedBox(height: 24),
               _TripFormCard(),
-              SizedBox(height: 32),
-              _SaveTripButton(),
+              SizedBox(height: 24),
             ],
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(16),
+        child: const SizedBox(
+          width: double.infinity,
+          child: _SaveTripButton(),
         ),
       ),
     );
@@ -97,9 +106,19 @@ class _TripCounterCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Próximo viaje', style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant)),
+            Text(
+              'Próximo viaje',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text('Viaje nuevo', style: theme.textTheme.headlineSmall?.copyWith(color: colors.onSurface)),
+            Text(
+              'Viaje nuevo',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: colors.onSurface,
+              ),
+            ),
           ],
         ),
       ),
@@ -143,7 +162,12 @@ class _PassengerNameField extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Nombre del pasajero', style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurface)),
+            Text(
+              'Nombre del pasajero',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: colors.onSurface,
+              ),
+            ),
             const SizedBox(height: 8),
             TextFormField(
               onChanged: context.read<NewTripCubit>().passengerNameChanged,
@@ -152,8 +176,12 @@ class _PassengerNameField extends StatelessWidget {
                 hintText: 'Nombre del pasajero',
                 prefixIcon: Icon(Icons.person, color: colors.primary, size: 20),
               ),
-              validator: (value) => value!.isEmpty ? state.passengerName.errorMessage : null,
-              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+              validator:
+                  (value) =>
+                      value!.isEmpty ? state.passengerName.errorMessage : null,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colors.onSurface,
+              ),
             ),
           ],
         );
@@ -175,7 +203,12 @@ class _FareAmountField extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Tarifa', style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurface)),
+            Text(
+              'Tarifa',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: colors.onSurface,
+              ),
+            ),
             const SizedBox(height: 8),
             TextFormField(
               keyboardType: TextInputType.number,
@@ -186,12 +219,22 @@ class _FareAmountField extends StatelessWidget {
               onChanged: context.read<NewTripCubit>().fareAmountChanged,
               decoration: InputDecoration(
                 hintText: '0',
-                prefixIcon: Icon(Icons.payments, color: colors.primary, size: 20),
+                prefixIcon: Icon(
+                  Icons.payments,
+                  color: colors.primary,
+                  size: 20,
+                ),
                 prefixText: 'Gs ',
               ),
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              validator: (value) => value!.isEmpty ? state.fareAmount.errorMessage : null, // TODO: validar rango
-              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+              validator:
+                  (value) =>
+                      value!.isEmpty
+                          ? state.fareAmount.errorMessage
+                          : null, // TODO: validar rango
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colors.onSurface,
+              ),
             ),
           ],
         );
@@ -216,7 +259,8 @@ class _ServiceTypeSelector extends StatelessWidget {
           builder: (context, constraints) {
             // Calcular alto deseado para cada tile (botón)
             const double tileHeight = 48;
-            final double totalSpacing = 2 * 12; // 12 de espacio entre columnas (2 gaps)
+            final double totalSpacing =
+                2 * 12; // 12 de espacio entre columnas (2 gaps)
             final double tileWidth = (constraints.maxWidth - totalSpacing) / 3;
             final double aspectRatio = tileWidth / tileHeight;
 
@@ -255,7 +299,8 @@ class _ServiceTypeTile extends StatelessWidget {
       builder: (context, state) {
         final bool isSelected = state.serviceType == type;
         final Color bg = isSelected ? colors.primary : colors.surfaceVariant;
-        final Color fg = isSelected ? colors.onPrimary : colors.onSurfaceVariant;
+        final Color fg =
+            isSelected ? colors.onPrimary : colors.onSurfaceVariant;
         final Color border = isSelected ? colors.primary : colors.outline;
 
         return Material(
@@ -264,8 +309,7 @@ class _ServiceTypeTile extends StatelessWidget {
             side: BorderSide(color: border, width: 2),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: InkWell
-            (
+          child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () => context.read<NewTripCubit>().serviceTypeChanged(type),
             child: Center(
@@ -295,12 +339,18 @@ class _SaveTripButton extends StatelessWidget {
       builder: (context, state) {
         final isLoading = state.status == FormStatus.loading;
         return FilledButton(
-          onPressed: state.isValid && !isLoading
-              ? context.read<NewTripCubit>().saveTrip
-              : null,
-          child: isLoading
-              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-              : const Text('Guardar viaje'),
+          onPressed:
+              state.isValid && !isLoading
+                  ? context.read<NewTripCubit>().saveTrip
+                  : null,
+          child:
+              isLoading
+                  ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                  : const Text('Guardar viaje'),
         );
       },
     );
@@ -309,7 +359,10 @@ class _SaveTripButton extends StatelessWidget {
 
 class _GsThousandsFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     if (newValue.text.isEmpty) return newValue;
     final digits = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
     final formatted = CurrencyFormatter.formatNumberOnly(digits);
@@ -319,5 +372,3 @@ class _GsThousandsFormatter extends TextInputFormatter {
     );
   }
 }
-
-
