@@ -44,6 +44,8 @@ dependencies:
   # SQLite para persistencia de datos (RT-004, RT-005, RT-006)
   sqflite: ^2.3.0
   path: ^1.8.3
+  # Acceso a directorios del sistema
+  path_provider: ^2.1.1
 
   # 🎨 Animaciones y UI
   # Animaciones Lottie para el automóvil (RT-007)

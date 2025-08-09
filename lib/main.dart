@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app_config/theme_config.dart';
+import 'app_config/database/database_demo.dart';
 
 /// Punto de entrada principal de TaxiMeter Pro
 /// 
@@ -65,11 +66,12 @@ class _TemporaryHomePage extends StatelessWidget {
         title: const Text('TaxiMeter Pro'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             // Header Card
             Card(
               elevation: 6,
@@ -147,7 +149,7 @@ class _TemporaryHomePage extends StatelessWidget {
               ),
             ),
             
-            const Spacer(),
+            const SizedBox(height: 32), // Reemplazar Spacer con SizedBox fijo
             
             // Demo Buttons
             FilledButton.icon(
@@ -196,7 +198,58 @@ class _TemporaryHomePage extends StatelessWidget {
               icon: const Icon(Icons.info),
               label: const Text('Ver Colores'),
             ),
+
+            const SizedBox(height: 12),
+
+            OutlinedButton.icon(
+              onPressed: () async {
+                // Demo de base de datos
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Ejecutando demo de base de datos... Ver consola',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                    backgroundColor: AppColors.primaryContainer,
+                  ),
+                );
+                
+                // Ejecutar demo en background
+                try {
+                  await DatabaseDemo.runCompleteDemo();
+                  
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '✅ Demo de base de datos completado',
+                          style: AppTextStyles.bodyMedium,
+                        ),
+                        backgroundColor: AppColors.primaryContainer,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '❌ Error en demo de DB: $e',
+                          style: AppTextStyles.bodyMedium,
+                        ),
+                        backgroundColor: AppColors.error,
+                      ),
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.storage),
+              label: const Text('Demo Base de Datos'),
+            ),
+            
+            const SizedBox(height: 24), // Espacio extra al final
           ],
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -220,12 +273,26 @@ class _TemporaryHomePage extends StatelessWidget {
                       color: AppColors.timerBackground,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      '00:15:32',
-                      style: AppTextStyles.timer,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Cronómetro JetBrains Mono',
+                          style: AppTextStyles.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '00:15:32',
+                          style: AppTextStyles.timer,
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
+                  Text(
+                    'Tipografía Inter Moderna',
+                    style: AppTextStyles.titleMedium,
+                  ),
+                  const SizedBox(height: 8),
                   Text(
                     'Gs 25.000',
                     style: AppTextStyles.currency,
