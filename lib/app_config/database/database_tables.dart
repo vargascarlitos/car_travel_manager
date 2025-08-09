@@ -16,6 +16,7 @@ class DatabaseTables {
     CREATE TABLE ${DatabaseConfig.tripsTable} (
       -- Identificación principal
       ${DatabaseConfig.fieldId} TEXT PRIMARY KEY NOT NULL,
+      ${DatabaseConfig.fieldDisplayId} INTEGER UNIQUE NOT NULL,
       
       -- Datos del viaje
       ${DatabaseConfig.fieldPassengerName} TEXT NOT NULL CHECK (length(${DatabaseConfig.fieldPassengerName}) > 0),

@@ -13,7 +13,7 @@ class DatabaseConfig {
   static const String databaseName = 'taximeter_pro.db';
 
   /// Versión actual de la base de datos
-  static const int databaseVersion = 1;
+  static const int databaseVersion = 3;
 
   /// Versión preparada para backend (futura migración)
   static const int databaseVersionWithSync = 2;
@@ -84,6 +84,9 @@ class DatabaseConfig {
 
   /// Estado del viaje (pending, in_progress, completed)
   static const String fieldStatus = 'status';
+
+  /// Identificador numérico secuencial para mostrar al conductor
+  static const String fieldDisplayId = 'display_id';
 
   // ========================================
   // CAMPOS ESPECÍFICOS - REVIEWS

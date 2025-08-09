@@ -130,16 +130,29 @@ class DatabaseMigration {
     }
 
     try {
-      // Ejemplo: Agregar nueva columna a trips
+      // v3: Agregar columna display_id secuencial y asignar valores iniciales
       await db.execute('''
-        ALTER TABLE ${DatabaseConfig.tripsTable} 
-        ADD COLUMN distance_km REAL DEFAULT 0.0 CHECK (distance_km >= 0.0);
+        ALTER TABLE ${DatabaseConfig.tripsTable}
+        ADD COLUMN ${DatabaseConfig.fieldDisplayId} INTEGER;
       ''');
 
-      // Ejemplo: Crear nuevo índice para la columna
+      // Asignar display_id inicial de forma secuencial según created_at
       await db.execute('''
-        CREATE INDEX idx_trips_distance 
-        ON ${DatabaseConfig.tripsTable} (distance_km);
+        WITH ordered AS (
+          SELECT ${DatabaseConfig.fieldId} AS id,
+                 ROW_NUMBER() OVER (ORDER BY ${DatabaseConfig.fieldCreatedAt}) AS seq
+          FROM ${DatabaseConfig.tripsTable}
+        )
+        UPDATE ${DatabaseConfig.tripsTable}
+        SET ${DatabaseConfig.fieldDisplayId} = (
+          SELECT seq FROM ordered WHERE ordered.id = ${DatabaseConfig.tripsTable}.${DatabaseConfig.fieldId}
+        );
+      ''');
+
+      // Asegurar unicidad y no nulo
+      await db.execute('''
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_trips_display_id
+        ON ${DatabaseConfig.tripsTable} (${DatabaseConfig.fieldDisplayId});
       ''');
 
       if (DatabaseConfig.enableSqlLogging) {

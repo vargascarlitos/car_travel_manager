@@ -5,6 +5,7 @@ import '../../domain/entities/trip.dart';
 class TripModel extends Equatable {
   const TripModel({
     required this.id,
+    this.displayId,
     required this.passengerName,
     required this.totalAmount,
     required this.serviceType,
@@ -17,6 +18,7 @@ class TripModel extends Equatable {
   });
 
   final String id;
+  final int? displayId;
   final String passengerName;
   final int totalAmount;
   final ServiceType serviceType;
@@ -30,6 +32,7 @@ class TripModel extends Equatable {
   Trip toEntity() {
     return Trip(
       id: id,
+      displayId: displayId,
       passengerName: passengerName,
       totalAmount: totalAmount,
       serviceType: serviceType,
@@ -45,6 +48,7 @@ class TripModel extends Equatable {
   factory TripModel.fromEntity(Trip trip) {
     return TripModel(
       id: trip.id,
+      displayId: trip.displayId,
       passengerName: trip.passengerName,
       totalAmount: trip.totalAmount,
       serviceType: trip.serviceType,
@@ -60,6 +64,7 @@ class TripModel extends Equatable {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'display_id': displayId,
       'passenger_name': passengerName,
       'total_amount': totalAmount,
       'service_type': _serviceTypeToDb(serviceType),
@@ -75,6 +80,7 @@ class TripModel extends Equatable {
   factory TripModel.fromMap(Map<String, dynamic> map) {
     return TripModel(
       id: map['id'] as String,
+      displayId: map['display_id'] as int?,
       passengerName: map['passenger_name'] as String,
       totalAmount: map['total_amount'] as int,
       serviceType: _serviceTypeFromDb(map['service_type'] as String),
@@ -138,6 +144,7 @@ class TripModel extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        displayId,
         passengerName,
         totalAmount,
         serviceType,

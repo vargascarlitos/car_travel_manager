@@ -10,10 +10,32 @@ class TripLocalDataSource {
   static const String _table = 'trips';
 
   Future<TripModel> createTrip(TripModel trip) async {
-    final values = trip.toMap();
     try {
-      await _dbHelper.insert(_table, values);
-      return trip;
+      // Garantizar secuencialidad con transacción
+      return await _dbHelper.transaction<TripModel>((txn) async {
+        final res = await txn.rawQuery('SELECT COALESCE(MAX(display_id), 0) + 1 as next FROM $_table');
+        final nextRaw = res.first['next'];
+        final int nextDisplayId = (nextRaw is int) ? nextRaw : int.parse(nextRaw.toString());
+
+        final values = trip.toMap();
+        values['display_id'] = nextDisplayId;
+
+        await txn.insert(_table, values, conflictAlgorithm: sqflite.ConflictAlgorithm.abort);
+
+        return TripModel(
+          id: trip.id,
+          displayId: nextDisplayId,
+          passengerName: trip.passengerName,
+          totalAmount: trip.totalAmount,
+          serviceType: trip.serviceType,
+          startTime: trip.startTime,
+          endTime: trip.endTime,
+          durationSeconds: trip.durationSeconds,
+          status: trip.status,
+          createdAt: trip.createdAt,
+          updatedAt: trip.updatedAt,
+        );
+      });
     } on sqflite.DatabaseException catch (e) {
       throw appdb.DatabaseException('Error al crear viaje: ${e.toString()}');
     } catch (e) {
