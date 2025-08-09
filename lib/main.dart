@@ -1,122 +1,288 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'app_config/theme_config.dart';
 
-void main() {
-  runApp(const MyApp());
+/// Punto de entrada principal de TaxiMeter Pro
+/// 
+/// Aplicación de taxímetro con arquitectura Clean y BLoC.
+/// Implementa Material Design 3 con Bolt Dark Theme.
+void main() async {
+  // Asegurar que Flutter esté inicializado
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Configurar la UI del sistema (barra de estado, etc.)
+  AppTheme.setSystemUIOverlayStyle();
+  
+  // Ejecutar la aplicación
+  runApp(const TaxiMeterApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+/// Widget raíz de la aplicación TaxiMeter Pro
+class TaxiMeterApp extends StatelessWidget {
+  const TaxiMeterApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Ariel nde tembo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'App para ariel'),
+      // Información de la aplicación
+      title: 'TaxiMeter Pro',
+      
+      // Configuración de debug
+      debugShowCheckedModeBanner: false,
+      
+      // Tema principal - Solo Dark Theme (Bolt)
+      theme: AppTheme.darkTheme,
+      
+      // No hay tema claro - solo dark según requerimientos
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+      
+      // Página inicial temporal (será reemplazada por arquitectura BLoC)
+      home: const _TemporaryHomePage(),
+      
+      // Configuración de Material Design
+      builder: (context, child) {
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: AppTheme.systemUiOverlayStyle,
+          child: child!,
+        );
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+/// Página temporal para probar el tema
+/// 
+/// Esta página será reemplazada por la arquitectura BLoC completa
+/// con las 8 pantallas del flujo de la aplicación.
+class _TemporaryHomePage extends StatelessWidget {
+  const _TemporaryHomePage();
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('TaxiMeter Pro'),
+        centerTitle: true,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Ariel nde tembo'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Card
+            Card(
+              elevation: 6,
+              color: AppColors.primaryContainer,
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.local_taxi,
+                      size: 48,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      '¡Bienvenido a TaxiMeter Pro!',
+                      style: AppTextStyles.headlineSmall.copyWith(
+                        color: AppColors.onPrimaryContainer,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Configuración de tema completada',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.onPrimaryContainer,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 24),
+            
+            // Features Demo Card
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bolt Dark Theme - Características',
+                      style: AppTextStyles.titleLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    _FeatureItem(
+                      icon: Icons.palette,
+                      title: 'Material Design 3',
+                      subtitle: 'Implementación completa con colores Bolt',
+                    ),
+                    
+                    _FeatureItem(
+                      icon: Icons.dark_mode,
+                      title: 'Solo Dark Theme',
+                      subtitle: 'Optimizado para uso nocturno profesional',
+                    ),
+                    
+                    _FeatureItem(
+                      icon: Icons.timer,
+                      title: 'Tipografía Especializada',
+                      subtitle: 'Cronómetro y moneda con fuentes optimizadas',
+                    ),
+                    
+                    _FeatureItem(
+                      icon: Icons.architecture,
+                      title: 'Clean Architecture',
+                      subtitle: 'Preparado para BLoC y capas separadas',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            const Spacer(),
+            
+            // Demo Buttons
+            FilledButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Tema Bolt Dark aplicado correctamente ✅',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                    backgroundColor: AppColors.primaryContainer,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.check_circle),
+              label: const Text('Probar Tema'),
+            ),
+            
+            const SizedBox(height: 12),
+            
+            OutlinedButton.icon(
+              onPressed: () {
+                // Mostrar información del tema
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Información del Tema'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Primary: ${AppColors.primary}', style: AppTextStyles.bodySmall),
+                        Text('Surface: ${AppColors.surface}', style: AppTextStyles.bodySmall),
+                        Text('Tertiary: ${AppColors.tertiary}', style: AppTextStyles.bodySmall),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cerrar'),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              icon: const Icon(Icons.info),
+              label: const Text('Ver Colores'),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        onPressed: () {
+          // Demo de cronómetro
+          showBottomSheet(
+            context: context,
+            builder: (context) => Container(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Demo Cronómetro',
+                    style: AppTextStyles.titleLarge,
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColors.timerBackground,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '00:15:32',
+                      style: AppTextStyles.timer,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Gs 25.000',
+                    style: AppTextStyles.currency,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+        tooltip: 'Demo Cronómetro',
+        child: const Icon(Icons.timer),
+      ),
+    );
+  }
+}
+
+/// Widget helper para mostrar características
+class _FeatureItem extends StatelessWidget {
+  const _FeatureItem({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            color: AppColors.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.bodyLarge,
+                ),
+                Text(
+                  subtitle,
+                  style: AppTextStyles.bodySmall,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

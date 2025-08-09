@@ -48,7 +48,6 @@ dependencies:
   # 🎨 Animaciones y UI
   # Animaciones Lottie para el automóvil (RT-007)
   lottie: ^2.7.0
-  
   # Sistema de calificación con estrellas (RF-017)
   flutter_rating_bar: ^4.0.1
 
