@@ -43,10 +43,9 @@ app.*.map.json
 /android/app/release
 
 # Confidential design documentation (except PDR)
-docs/screen_*_design.md
-docs/cronograma.md
-docs/design_system.md
+docs/
 design/
+.cursor/
 
 # Keep only PDR document public
 !docs/pdr.md
