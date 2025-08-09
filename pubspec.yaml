@@ -39,6 +39,10 @@ dependencies:
   # BLoC Pattern para gestión de estados (RT-001)
   flutter_bloc: ^8.1.3
   bloc: ^8.1.2
+  # Formularios con validación automática
+  formz: ^0.6.1
+  # Estados inmutables con comparación automática
+  equatable: ^2.0.5
 
   # 🗄️ Base de Datos Local
   # SQLite para persistencia de datos (RT-004, RT-005, RT-006)
@@ -58,14 +62,6 @@ dependencies:
   # 💰 Formateo de Moneda y Fechas
   # Formateo automático de moneda paraguaya y manejo de fechas (RT-012)
   intl: ^0.18.1
-
-  # ✅ Validación de Formularios
-  # Validaciones de formulario (RT-011)
-  form_validator: ^2.1.1
-
-  # 📱 Funcionalidades del Dispositivo
-  # Feedback haptico para botones deslizables (RNF-005)
-  vibration: ^1.7.7
   
   # Mantener pantalla activa durante viajes (RF-009)
   wakelock_plus: ^1.2.1
