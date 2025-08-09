@@ -10,6 +10,7 @@ enum TripStatus { pending, inProgress, completed }
 class Trip extends Equatable {
   const Trip({
     required this.id,
+    this.displayId,
     required this.passengerName,
     required this.totalAmount,
     required this.serviceType,
@@ -22,6 +23,7 @@ class Trip extends Equatable {
   });
 
   final String id;                // UUID
+  final int? displayId;           // ID numérico secuencial para mostrar
   final String passengerName;     // Nombre del pasajero
   final int totalAmount;          // Monto en Gs (entero)
   final ServiceType serviceType;  // Tipo de servicio
@@ -34,6 +36,7 @@ class Trip extends Equatable {
 
   Trip copyWith({
     String? id,
+    int? displayId,
     String? passengerName,
     int? totalAmount,
     ServiceType? serviceType,
@@ -46,6 +49,7 @@ class Trip extends Equatable {
   }) {
     return Trip(
       id: id ?? this.id,
+      displayId: displayId ?? this.displayId,
       passengerName: passengerName ?? this.passengerName,
       totalAmount: totalAmount ?? this.totalAmount,
       serviceType: serviceType ?? this.serviceType,
@@ -61,6 +65,7 @@ class Trip extends Equatable {
   @override
   List<Object?> get props => [
         id,
+        displayId,
         passengerName,
         totalAmount,
         serviceType,

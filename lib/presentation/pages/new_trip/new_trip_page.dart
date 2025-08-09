@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../app_config/utils/currency_formatter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/trip.dart';
 import '../../../app_config/router_config.dart';
@@ -180,7 +181,7 @@ class _FareAmountField extends StatelessWidget {
               keyboardType: TextInputType.number,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                _ThousandsSeparatorInputFormatter(),
+                _GsThousandsFormatter(),
               ],
               onChanged: context.read<NewTripCubit>().fareAmountChanged,
               decoration: InputDecoration(
@@ -306,16 +307,16 @@ class _SaveTripButton extends StatelessWidget {
   }
 }
 
-class _ThousandsSeparatorInputFormatter extends TextInputFormatter {
+class _GsThousandsFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     if (newValue.text.isEmpty) return newValue;
     final digits = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    if (digits.isEmpty) {
-      return const TextEditingValue(text: '', selection: TextSelection.collapsed(offset: 0));
-    }
-    final formatted = digits.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.');
-    return TextEditingValue(text: formatted, selection: TextSelection.collapsed(offset: formatted.length));
+    final formatted = CurrencyFormatter.formatNumberOnly(digits);
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
   }
 }
 

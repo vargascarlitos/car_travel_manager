@@ -6,6 +6,7 @@
 export 'new_trip/new_trip_page.dart';
 export 'history/history_page.dart';
 export 'preview/preview_page.dart';
+export 'active_trip/active_trip_page.dart';
 
 // TODO: Agregar exports para futuras páginas:
 // export 'active_trip/active_trip_page.dart';
