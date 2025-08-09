@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
 /// Estilos de texto Material Design 3 para TaxiMeter Pro
 /// 
-/// Optimizados para dark theme con tipografía clara y legible.
+/// Optimizados para dark theme con tipografía Google Fonts moderna.
+/// Usa Inter para textos generales y JetBrains Mono para cronómetro.
 /// Incluye estilos específicos para cronómetro, montos y elementos de UI.
 class AppTextStyles {
   // Evitar instanciación
@@ -13,15 +15,16 @@ class AppTextStyles {
   // TIPOGRAFÍA MATERIAL DESIGN 3
   // ========================================
 
-  // Fuente base del sistema con fallbacks
-  static const String _fontFamily = 'Roboto';
+  // Fuentes Google Fonts modernas
+  static String get _fontFamily => GoogleFonts.inter().fontFamily!;
+  static String get _monoFontFamily => GoogleFonts.jetBrainsMono().fontFamily!;
   
   // ========================================
   // DISPLAY STYLES - Para elementos grandes
   // ========================================
 
   /// Display Large - Para splash screens, grandes títulos
-  static const TextStyle displayLarge = TextStyle(
+  static TextStyle get displayLarge => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 57,
     fontWeight: FontWeight.w400,
@@ -31,7 +34,7 @@ class AppTextStyles {
   );
 
   /// Display Medium - Para headers principales
-  static const TextStyle displayMedium = TextStyle(
+  static TextStyle get displayMedium => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 45,
     fontWeight: FontWeight.w400,
@@ -41,7 +44,7 @@ class AppTextStyles {
   );
 
   /// Display Small - Para títulos de sección importantes
-  static const TextStyle displaySmall = TextStyle(
+  static TextStyle get displaySmall => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 36,
     fontWeight: FontWeight.w400,
@@ -55,7 +58,7 @@ class AppTextStyles {
   // ========================================
 
   /// Headline Large - Títulos principales de pantalla
-  static const TextStyle headlineLarge = TextStyle(
+  static TextStyle get headlineLarge => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 32,
     fontWeight: FontWeight.w400,
@@ -65,7 +68,7 @@ class AppTextStyles {
   );
 
   /// Headline Medium - AppBar titles, títulos de card importantes
-  static const TextStyle headlineMedium = TextStyle(
+  static TextStyle get headlineMedium => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 28,
     fontWeight: FontWeight.w400,
@@ -75,7 +78,7 @@ class AppTextStyles {
   );
 
   /// Headline Small - Subtítulos, nombres de pasajeros destacados
-  static const TextStyle headlineSmall = TextStyle(
+  static TextStyle get headlineSmall => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 24,
     fontWeight: FontWeight.w400,
@@ -89,7 +92,7 @@ class AppTextStyles {
   // ========================================
 
   /// Title Large - Títulos de cards, secciones importantes
-  static const TextStyle titleLarge = TextStyle(
+  static TextStyle get titleLarge => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 22,
     fontWeight: FontWeight.w400,
@@ -99,7 +102,7 @@ class AppTextStyles {
   );
 
   /// Title Medium - Títulos de componentes, labels importantes
-  static const TextStyle titleMedium = TextStyle(
+  static TextStyle get titleMedium => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w500,
@@ -109,7 +112,7 @@ class AppTextStyles {
   );
 
   /// Title Small - Títulos pequeños, labels de campos
-  static const TextStyle titleSmall = TextStyle(
+  static TextStyle get titleSmall => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w500,
@@ -123,7 +126,7 @@ class AppTextStyles {
   // ========================================
 
   /// Label Large - Botones principales, acciones importantes
-  static const TextStyle labelLarge = TextStyle(
+  static TextStyle get labelLarge => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w500,
@@ -133,7 +136,7 @@ class AppTextStyles {
   );
 
   /// Label Medium - Botones secundarios, chips
-  static const TextStyle labelMedium = TextStyle(
+  static TextStyle get labelMedium => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w500,
@@ -143,7 +146,7 @@ class AppTextStyles {
   );
 
   /// Label Small - Labels pequeños, indicadores
-  static const TextStyle labelSmall = TextStyle(
+  static TextStyle get labelSmall => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 11,
     fontWeight: FontWeight.w500,
@@ -157,7 +160,7 @@ class AppTextStyles {
   // ========================================
 
   /// Body Large - Contenido principal, texto importante
-  static const TextStyle bodyLarge = TextStyle(
+  static TextStyle get bodyLarge => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w400,
@@ -167,7 +170,7 @@ class AppTextStyles {
   );
 
   /// Body Medium - Contenido general, descripciones
-  static const TextStyle bodyMedium = TextStyle(
+  static TextStyle get bodyMedium => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 14,
     fontWeight: FontWeight.w400,
@@ -177,7 +180,7 @@ class AppTextStyles {
   );
 
   /// Body Small - Contenido secundario, ayudas contextuales
-  static const TextStyle bodySmall = TextStyle(
+  static TextStyle get bodySmall => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
@@ -190,9 +193,9 @@ class AppTextStyles {
   // ESTILOS ESPECÍFICOS DE LA APP
   // ========================================
 
-  /// Cronómetro - Estilo especial para timer con monospace
-  static const TextStyle timer = TextStyle(
-    fontFamily: 'Roboto Mono',
+  /// Cronómetro - Estilo especial para timer con JetBrains Mono
+  static TextStyle get timer => TextStyle(
+    fontFamily: _monoFontFamily,
     fontSize: 48,
     fontWeight: FontWeight.w700,
     letterSpacing: 2.0,
@@ -200,9 +203,9 @@ class AppTextStyles {
     height: 1.2,
   );
 
-  /// Cronómetro pequeño - Para displays secundarios
-  static const TextStyle timerSmall = TextStyle(
-    fontFamily: 'Roboto Mono',
+  /// Cronómetro pequeño - Para displays secundarios  
+  static TextStyle get timerSmall => TextStyle(
+    fontFamily: _monoFontFamily,
     fontSize: 24,
     fontWeight: FontWeight.w600,
     letterSpacing: 1.0,
@@ -211,7 +214,7 @@ class AppTextStyles {
   );
 
   /// Monto en guaraníes - Destacado para tarifas
-  static const TextStyle currency = TextStyle(
+  static TextStyle get currency => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 32,
     fontWeight: FontWeight.w700,
@@ -221,7 +224,7 @@ class AppTextStyles {
   );
 
   /// Monto pequeño - Para history y detalles
-  static const TextStyle currencySmall = TextStyle(
+  static TextStyle get currencySmall => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 18,
     fontWeight: FontWeight.w600,
@@ -231,7 +234,7 @@ class AppTextStyles {
   );
 
   /// Pasajero destacado - Para nombres de pasajeros
-  static const TextStyle passengerName = TextStyle(
+  static TextStyle get passengerName => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 20,
     fontWeight: FontWeight.w600,
@@ -241,7 +244,7 @@ class AppTextStyles {
   );
 
   /// ID de viaje - Para Trip #123
-  static const TextStyle tripId = TextStyle(
+  static TextStyle get tripId => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 16,
     fontWeight: FontWeight.w600,
@@ -251,7 +254,7 @@ class AppTextStyles {
   );
 
   /// Error text - Para mensajes de error
-  static const TextStyle error = TextStyle(
+  static TextStyle get error => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
@@ -261,7 +264,7 @@ class AppTextStyles {
   );
 
   /// Success text - Para mensajes de éxito
-  static const TextStyle success = TextStyle(
+  static TextStyle get success => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
@@ -271,7 +274,7 @@ class AppTextStyles {
   );
 
   /// Caption - Para metadatos, fechas, información secundaria
-  static const TextStyle caption = TextStyle(
+  static TextStyle get caption => TextStyle(
     fontFamily: _fontFamily,
     fontSize: 12,
     fontWeight: FontWeight.w400,
@@ -300,8 +303,8 @@ class AppTextStyles {
     return style.copyWith(fontSize: size);
   }
 
-  /// Crear TextTheme completo para Material Design 3
-  static const TextTheme textTheme = TextTheme(
+  /// Crear TextTheme completo para Material Design 3 con Google Fonts
+  static TextTheme get textTheme => TextTheme(
     displayLarge: displayLarge,
     displayMedium: displayMedium,
     displaySmall: displaySmall,

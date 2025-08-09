@@ -50,6 +50,8 @@ dependencies:
   lottie: ^2.7.0
   # Sistema de calificación con estrellas (RF-017)
   flutter_rating_bar: ^4.0.1
+  # Tipografía moderna con Google Fonts
+  google_fonts: ^6.1.0
 
   # 💰 Formateo de Moneda y Fechas
   # Formateo automático de moneda paraguaya y manejo de fechas (RT-012)
