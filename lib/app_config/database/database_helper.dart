@@ -69,16 +69,16 @@ class DatabaseHelper {
     }
 
     // Habilitar foreign keys
-    await db.execute('PRAGMA foreign_keys = ON;');
+    await db.rawQuery('PRAGMA foreign_keys = ON');
     
     // Configurar timeout
-    await db.execute('PRAGMA busy_timeout = ${DatabaseConfig.operationTimeoutSeconds * 1000};');
+    await db.rawQuery('PRAGMA busy_timeout = ${DatabaseConfig.operationTimeoutSeconds * 1000}');
     
     // Configurar WAL mode para mejor concurrencia
-    await db.execute('PRAGMA journal_mode = WAL;');
+    await db.rawQuery('PRAGMA journal_mode = WAL');
     
     // Configurar synchronous mode para balance performance/seguridad
-    await db.execute('PRAGMA synchronous = NORMAL;');
+    await db.rawQuery('PRAGMA synchronous = NORMAL');
   }
 
   /// Creación inicial de la base de datos

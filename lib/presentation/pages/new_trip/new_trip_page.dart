@@ -1,428 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../../../app_config/theme_config.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../domain/entities/trip.dart';
+import '../../../app_config/router_config.dart';
+import '../../bloc/new_trip/new_trip_cubit.dart';
+import '../../bloc/new_trip/new_trip_state.dart';
 
-/// Pantalla de Nuevo Viaje - Primera pantalla del flujo
-/// 
-/// Implementa el diseño según screen_1_design.md con Bolt Dark Theme.
-/// Permite cargar datos del pasajero, tarifa y tipo de servicio.
-class NewTripPage extends StatefulWidget {
+class NewTripPage extends StatelessWidget {
   const NewTripPage({super.key});
 
-  /// Ruta estática de la página
   static const String route = '/';
 
   @override
-  State<NewTripPage> createState() => _NewTripPageState();
-}
-
-class _NewTripPageState extends State<NewTripPage> {
-  // ========================================
-  // CONTROLADORES DE FORMULARIO
-  // ========================================
-
-  final _formKey = GlobalKey<FormState>();
-  final _passengerController = TextEditingController();
-  final _fareController = TextEditingController();
-  final _passengerFocusNode = FocusNode();
-  final _fareFocusNode = FocusNode();
-
-  // ========================================
-  // ESTADO DEL FORMULARIO
-  // ========================================
-
-  String _selectedServiceType = 'economy';
-  bool _isFormValid = false;
-
-  // Cantidades rápidas para chips
-  final List<int> _quickAmounts = [10000, 20000, 50000];
-  int? _selectedQuickAmount;
-
-  @override
-  void initState() {
-    super.initState();
-    
-    // Listeners para validación en tiempo real
-    _passengerController.addListener(_validateForm);
-    _fareController.addListener(_validateForm);
-  }
-
-  @override
-  void dispose() {
-    _passengerController.dispose();
-    _fareController.dispose();
-    _passengerFocusNode.dispose();
-    _fareFocusNode.dispose();
-    super.dispose();
-  }
-
-  // ========================================
-  // VALIDACIÓN DEL FORMULARIO
-  // ========================================
-
-  void _validateForm() {
-    final passengerValid = _passengerController.text.trim().isNotEmpty;
-    final fareValid = _fareController.text.isNotEmpty && 
-                     int.tryParse(_fareController.text.replaceAll(RegExp(r'[^\d]'), '')) != null &&
-                     int.parse(_fareController.text.replaceAll(RegExp(r'[^\d]'), '')) > 0;
-
-    setState(() {
-      _isFormValid = passengerValid && fareValid;
-    });
-  }
-
-  void _onQuickAmountSelected(int amount) {
-    setState(() {
-      _selectedQuickAmount = amount;
-      _fareController.text = _formatCurrency(amount);
-    });
-    _validateForm();
-  }
-
-  void _onServiceTypeChanged(String serviceType) {
-    setState(() {
-      _selectedServiceType = serviceType;
-    });
-  }
-
-  String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match match) => '${match[1]}.',
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => NewTripCubit(
+        tripRepository: RepositoryProvider.of(context),
+      ),
+      child: BlocListener<NewTripCubit, NewTripState>(
+        listenWhen: (prev, curr) => prev.status != curr.status,
+        listener: (context, state) {
+          if (state.status == FormStatus.failure) {
+            final theme = Theme.of(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.failureMessage ?? 'Error desconocido'),
+                backgroundColor: theme.colorScheme.error,
+              ),
+            );
+          }
+          if (state.status == FormStatus.success && state.lastSavedTripId != null) {
+            context.pushNamed('/preview', arguments: {
+              'tripId': state.lastSavedTripId,
+            });
+          }
+        },
+        child: const NewTripView(),
+      ),
     );
   }
+}
 
-  void _onStartTrip() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // TODO: Implementar navegación a previsualización
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Iniciando viaje para ${_passengerController.text}',
-            style: AppTextStyles.bodyMedium,
-          ),
-          backgroundColor: AppColors.primaryContainer,
-        ),
-      );
-    }
-  }
+class NewTripView extends StatelessWidget {
+  const NewTripView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      // ========================================
-      // TOP APP BAR - DARK THEME
-      // ========================================
       appBar: AppBar(
-        title: Text(
-          'Nuevo Viaje',
-          style: AppTextStyles.headlineMedium.copyWith(
-            color: AppColors.onSurface,
-            fontSize: 22,
-          ),
-        ),
+        title: Text('Nuevo Viaje', style: theme.textTheme.titleLarge),
         centerTitle: true,
-        backgroundColor: AppColors.surface,
-        elevation: 4,
-        surfaceTintColor: Colors.transparent,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        iconTheme: IconThemeData(color: AppColors.onSurface),
         actions: [
           IconButton(
             onPressed: () => Navigator.pushNamed(context, '/history'),
             icon: const Icon(Icons.history),
             tooltip: 'Historial',
-            iconSize: 24,
           ),
         ],
       ),
-
-      // ========================================
-      // CUERPO DE LA PÁGINA
-      // ========================================
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ========================================
-                  // TRIP COUNTER - DARK THEME
-                  // ========================================
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          'Próximo viaje',
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Viaje #124',
-                          style: AppTextStyles.headlineSmall.copyWith(
-                            color: AppColors.onPrimaryContainer,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // ========================================
-                  // UNIFIED FORM CARD - DARK THEME
-                  // ========================================
-                  Card(
-                    elevation: 4,
-                    color: AppColors.surfaceVariant,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: AppColors.outline.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // ========================================
-                          // PASSENGER INPUT
-                          // ========================================
-                          Text(
-                            'Nombre del pasajero',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _passengerController,
-                            focusNode: _passengerFocusNode,
-                            decoration: InputDecoration(
-                              hintText: 'Nombre del pasajero',
-                              hintStyle: TextStyle(
-                                color: AppColors.onSurfaceVariant,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.person,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
-                              filled: true,
-                              fillColor: AppColors.surface,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.outline,
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.outline,
-                                  width: 2,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.error,
-                                  width: 2,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ),
-                            ),
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              color: AppColors.onSurface,
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'El nombre del pasajero es obligatorio';
-                              }
-                              return null;
-                            },
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // ========================================
-                          // FARE INPUT WITH QUICK AMOUNTS
-                          // ========================================
-                          Text(
-                            'Tarifa',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            controller: _fareController,
-                            focusNode: _fareFocusNode,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              _ThousandsSeparatorInputFormatter(),
-                            ],
-                            decoration: InputDecoration(
-                              hintText: '0',
-                              hintStyle: TextStyle(
-                                color: AppColors.onSurfaceVariant,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.payments,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
-                              prefixText: 'Gs ',
-                              prefixStyle: AppTextStyles.bodyLarge.copyWith(
-                                color: AppColors.onSurfaceVariant,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              filled: true,
-                              fillColor: AppColors.surface,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.outline,
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.outline,
-                                  width: 2,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.primary,
-                                  width: 2,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: AppColors.error,
-                                  width: 2,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ),
-                            ),
-                            style: AppTextStyles.bodyLarge.copyWith(
-                              color: AppColors.onSurface,
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'El monto es obligatorio';
-                              }
-                              final amount = int.tryParse(value.replaceAll(RegExp(r'[^\d]'), ''));
-                              if (amount == null || amount <= 0) {
-                                return 'Ingrese un monto válido';
-                              }
-                              return null;
-                            },
-                          ),
-
-              
-                          const SizedBox(height: 24),
-
-                          // ========================================
-                          // SERVICE TYPE SELECTOR
-                          // ========================================
-                          Text(
-                            'Tipo de servicio',
-                            style: AppTextStyles.labelLarge.copyWith(
-                              color: AppColors.onSurface,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-
-                          Wrap(
-                            spacing: 12,
-                            children: [
-                              _ServiceTypeChip(
-                                label: 'Económico',
-                                value: 'economy',
-                                selectedValue: _selectedServiceType,
-                                onChanged: _onServiceTypeChanged,
-                              ),
-                              _ServiceTypeChip(
-                                label: 'Aire\nAcondicionado',
-                                value: 'aire_ac',
-                                selectedValue: _selectedServiceType,
-                                onChanged: _onServiceTypeChanged,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // ========================================
-                  // ACTION BUTTON - DARK THEME
-                  // ========================================
-                  FilledButton(
-                    onPressed: _isFormValid ? _onStartTrip : null,
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.onPrimary,
-                      disabledBackgroundColor: AppColors.onSurface.withValues(alpha: 0.12),
-                      disabledForegroundColor: AppColors.onSurface.withValues(alpha: 0.38),
-                      elevation: 6,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-                      'Iniciar Viaje',
-                      style: AppTextStyles.labelLarge.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-                ],
-              ),
-            ),
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: 16 + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _TripCounterCard(),
+              SizedBox(height: 24),
+              _TripFormCard(),
+              SizedBox(height: 32),
+              _SaveTripButton(),
+            ],
           ),
         ),
       ),
@@ -430,97 +83,240 @@ class _NewTripPageState extends State<NewTripPage> {
   }
 }
 
-/// Widget para chips de tipo de servicio
-class _ServiceTypeChip extends StatelessWidget {
-  const _ServiceTypeChip({
-    required this.label,
-    required this.value,
-    required this.selectedValue,
-    required this.onChanged,
-  });
-
-  final String label;
-  final String value;
-  final String selectedValue;
-  final ValueChanged<String> onChanged;
+class _TripCounterCard extends StatelessWidget {
+  const _TripCounterCard();
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = value == selectedValue;
-    
-    return FilterChip(
-      label: Text(
-        label,
-        style: AppTextStyles.bodyMedium.copyWith(
-          color: isSelected 
-              ? AppColors.onPrimary
-              : AppColors.onSurfaceVariant,
-          fontWeight: FontWeight.w500,
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Próximo viaje', style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant)),
+            const SizedBox(height: 4),
+            Text('Viaje nuevo', style: theme.textTheme.headlineSmall?.copyWith(color: colors.onSurface)),
+          ],
         ),
-        textAlign: TextAlign.center,
       ),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
-          onChanged(value);
-        }
-      },
-      backgroundColor: AppColors.surfaceVariant,
-      selectedColor: AppColors.primary,
-      checkmarkColor: AppColors.onPrimary,
-      side: BorderSide(
-        color: isSelected 
-            ? AppColors.primary
-            : AppColors.outline,
-        width: 2,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
-      showCheckmark: false,
-      avatar: isSelected 
-          ? Icon(
-              Icons.directions_car,
-              size: 16,
-              color: AppColors.onPrimary,
-            )
-          : null,
     );
   }
 }
 
-/// Formateador de miles para inputs de tarifa
+class _TripFormCard extends StatelessWidget {
+  const _TripFormCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            _PassengerNameField(),
+            SizedBox(height: 24),
+            _FareAmountField(),
+            SizedBox(height: 24),
+            _ServiceTypeSelector(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PassengerNameField extends StatelessWidget {
+  const _PassengerNameField();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return BlocBuilder<NewTripCubit, NewTripState>(
+      buildWhen: (p, c) => p.passengerName != c.passengerName,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Nombre del pasajero', style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurface)),
+            const SizedBox(height: 8),
+            TextFormField(
+              onChanged: context.read<NewTripCubit>().passengerNameChanged,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              decoration: InputDecoration(
+                hintText: 'Nombre del pasajero',
+                prefixIcon: Icon(Icons.person, color: colors.primary, size: 20),
+              ),
+              validator: (value) => value!.isEmpty ? state.passengerName.errorMessage : null,
+              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _FareAmountField extends StatelessWidget {
+  const _FareAmountField();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return BlocBuilder<NewTripCubit, NewTripState>(
+      buildWhen: (p, c) => p.fareAmount != c.fareAmount,
+      builder: (context, state) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Tarifa', style: theme.textTheme.labelLarge?.copyWith(color: colors.onSurface)),
+            const SizedBox(height: 8),
+            TextFormField(
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                _ThousandsSeparatorInputFormatter(),
+              ],
+              onChanged: context.read<NewTripCubit>().fareAmountChanged,
+              decoration: InputDecoration(
+                hintText: '0',
+                prefixIcon: Icon(Icons.payments, color: colors.primary, size: 20),
+                prefixText: 'Gs ',
+              ),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (value) => value!.isEmpty ? state.fareAmount.errorMessage : null, // TODO: validar rango
+              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ServiceTypeSelector extends StatelessWidget {
+  const _ServiceTypeSelector();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Tipo de servicio', style: theme.textTheme.labelLarge),
+        const SizedBox(height: 8),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            // Calcular alto deseado para cada tile (botón)
+            const double tileHeight = 48;
+            final double totalSpacing = 2 * 12; // 12 de espacio entre columnas (2 gaps)
+            final double tileWidth = (constraints.maxWidth - totalSpacing) / 3;
+            final double aspectRatio = tileWidth / tileHeight;
+
+            return GridView.count(
+              crossAxisCount: 3,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: aspectRatio,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              children: const [
+                _ServiceTypeTile(label: 'Economy', type: ServiceType.economy),
+                _ServiceTypeTile(label: 'UberX', type: ServiceType.uberX),
+                _ServiceTypeTile(label: 'Aire AC', type: ServiceType.aireAc),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _ServiceTypeTile extends StatelessWidget {
+  const _ServiceTypeTile({required this.label, required this.type});
+
+  final String label;
+  final ServiceType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return BlocBuilder<NewTripCubit, NewTripState>(
+      buildWhen: (p, c) => p.serviceType != c.serviceType,
+      builder: (context, state) {
+        final bool isSelected = state.serviceType == type;
+        final Color bg = isSelected ? colors.primary : colors.surfaceVariant;
+        final Color fg = isSelected ? colors.onPrimary : colors.onSurfaceVariant;
+        final Color border = isSelected ? colors.primary : colors.outline;
+
+        return Material(
+          color: bg,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: border, width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: InkWell
+            (
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => context.read<NewTripCubit>().serviceTypeChanged(type),
+            child: Center(
+              child: Text(
+                label,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: fg,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SaveTripButton extends StatelessWidget {
+  const _SaveTripButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<NewTripCubit, NewTripState>(
+      buildWhen: (p, c) => p.isValid != c.isValid || p.status != c.status,
+      builder: (context, state) {
+        final isLoading = state.status == FormStatus.loading;
+        return FilledButton(
+          onPressed: state.isValid && !isLoading
+              ? context.read<NewTripCubit>().saveTrip
+              : null,
+          child: isLoading
+              ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+              : const Text('Guardar viaje'),
+        );
+      },
+    );
+  }
+}
+
 class _ThousandsSeparatorInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    if (newValue.text.isEmpty) {
-      return newValue;
-    }
-
-    final String digits = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) return newValue;
+    final digits = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
     if (digits.isEmpty) {
-      return const TextEditingValue(
-        text: '',
-        selection: TextSelection.collapsed(offset: 0),
-      );
+      return const TextEditingValue(text: '', selection: TextSelection.collapsed(offset: 0));
     }
-
-    final String formatted = digits.replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match match) => '${match[1]}.',
-    );
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
+    final formatted = digits.replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.');
+    return TextEditingValue(text: formatted, selection: TextSelection.collapsed(offset: formatted.length));
   }
 }
+
+

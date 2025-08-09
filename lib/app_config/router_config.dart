@@ -104,7 +104,7 @@ class AppRouter {
 
   /// Obtener página de previsualización
   static Widget _getPreviewPage() {
-    return _getPlaceholderPage('Previsualización', '/preview');
+    return const PreviewPage();
   }
 
   /// Obtener página de viaje activo

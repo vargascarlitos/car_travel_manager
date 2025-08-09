@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'app_config/theme_config.dart';
 import 'app_config/router_config.dart';
+import 'app_config/database/database_helper.dart';
+import 'domain/repositories/trip_repository.dart';
+import 'data/repositories/trip_repository_impl.dart';
 
 /// Punto de entrada principal de TaxiMeter Pro
 /// 
@@ -24,7 +28,9 @@ class TaxiMeterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return RepositoryProvider<TripRepository>(
+      create: (_) => TripRepositoryImpl(DatabaseHelper()),
+      child: MaterialApp(
       // Información de la aplicación
       title: 'TaxiMeter Pro',
       
@@ -43,12 +49,13 @@ class TaxiMeterApp extends StatelessWidget {
       onGenerateRoute: AppRouter.generateRoute,
       
       // Configuración de Material Design
-      builder: (context, child) {
-        return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: AppTheme.systemUiOverlayStyle,
-          child: child!,
-        );
-      },
+        builder: (context, child) {
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: AppTheme.systemUiOverlayStyle,
+            child: child!,
+          );
+        },
+      ),
     );
   }
 }
