@@ -69,6 +69,7 @@ dependencies:
   # 🔧 Utilities y Helpers
   # Generación de UUIDs para identificadores únicos
   uuid: ^4.1.0
+  responsive_framework: ^1.5.1
 
 dev_dependencies:
   flutter_test:
