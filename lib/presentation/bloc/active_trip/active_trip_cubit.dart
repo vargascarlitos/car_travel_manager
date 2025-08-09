@@ -50,6 +50,19 @@ class ActiveTripCubit extends Cubit<ActiveTripState> {
       emit(state.copyWith(status: ActiveTripStatus.failure, failureMessage: 'No se pudo finalizar el viaje'));
     }
   }
+
+  Future<void> refreshTrip() async {
+    try {
+      final id = state.trip?.id;
+      if (id == null) return;
+      final fresh = await _repository.getTripById(id);
+      if (fresh != null) {
+        emit(state.copyWith(trip: fresh));
+      }
+    } catch (_) {
+      // Silencioso; mantenemos UI estable
+    }
+  }
 }
 
 

@@ -7,6 +7,7 @@ import '../../bloc/active_trip/active_trip_cubit.dart';
 import '../../bloc/active_trip/active_trip_state.dart';
 import '../../widgets/slide_button.dart';
 import 'package:lottie/lottie.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ActiveTripPage extends StatelessWidget {
   const ActiveTripPage({super.key});
@@ -33,8 +34,46 @@ class ActiveTripPage extends StatelessWidget {
   }
 }
 
-class _ActiveTripView extends StatelessWidget {
+class _ActiveTripView extends StatefulWidget {
   const _ActiveTripView();
+
+  @override
+  State<_ActiveTripView> createState() => _ActiveTripViewState();
+}
+
+class _ActiveTripViewState extends State<_ActiveTripView> {
+  double _dragAccumulatedDy = 0;
+
+  Future<void> _navigateToModifyIfNeeded(BuildContext context, {double? velocity}) async {
+    final v = velocity ?? 0;
+    if (_dragAccumulatedDy > 80 || v > 300) {
+      final state = context.read<ActiveTripCubit>().state;
+      final tripId = state.trip?.id;
+      if (tripId == null) return;
+      final result = await Navigator.pushNamed(
+        context,
+        '/trip-modify',
+        arguments: {'tripId': tripId},
+      );
+      if (mounted && result == true) {
+        await context.read<ActiveTripCubit>().refreshTrip();
+      }
+    }
+    _dragAccumulatedDy = 0;
+  }
+  @override
+  void initState() {
+    super.initState();
+    // Mantener la pantalla encendida mientras el viaje esté activo
+    WakelockPlus.enable();
+  }
+
+  @override
+  void dispose() {
+    // Liberar wakelock al abandonar la pantalla
+    WakelockPlus.disable();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,21 +106,32 @@ class _ActiveTripView extends StatelessWidget {
           centerTitle: true,
         ),
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _SwipeDownIndicator(),
-                const SizedBox(height: 12),
-                const _TimerCard(),
-                const SizedBox(height: 16),
-                const _CarAnimationCard(),
-                const SizedBox(height: 16),
-                const _TripInfoCard(),
-                const Spacer(),
-                _FinishSlideButton(onFinish: context.read<ActiveTripCubit>().finishTrip),
-              ],
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onVerticalDragUpdate: (details) {
+              if (details.delta.dy > 0) {
+                _dragAccumulatedDy += details.delta.dy;
+              }
+            },
+            onVerticalDragEnd: (details) async {
+              await _navigateToModifyIfNeeded(context, velocity: details.primaryVelocity);
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const _SwipeDownIndicator(),
+                  const SizedBox(height: 12),
+                  const _TimerCard(),
+                  const SizedBox(height: 16),
+                  const _CarAnimationCard(),
+                  const SizedBox(height: 16),
+                  const _TripInfoCard(),
+                  const Spacer(),
+                  _FinishSlideButton(onFinish: context.read<ActiveTripCubit>().finishTrip),
+                ],
+              ),
             ),
           ),
         ),
@@ -96,20 +146,8 @@ class _SwipeDownIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onVerticalDragEnd: (details) {
-        if (details.primaryVelocity != null && details.primaryVelocity! > 250) {
-          // Navegar a modificar manteniendo el mismo TimerCubit
-          Navigator.pushNamed(
-            context,
-            '/trip-modify',
-            arguments: {},
-          );
-        }
-      },
-      child: Center(
-        child: Icon(Icons.keyboard_arrow_down, color: colors.onSurfaceVariant),
-      ),
+    return Center(
+      child: Icon(Icons.keyboard_arrow_down, color: colors.onSurfaceVariant),
     );
   }
 }
@@ -171,7 +209,7 @@ class _CarAnimationCard extends StatelessWidget {
         child: Center(
           child: Lottie.asset(
             'assets/animations/delivery_animation.json',
-            height: 120,
+            height: 300,
             repeat: true,
             animate: true,
           ),

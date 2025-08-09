@@ -48,10 +48,10 @@ class AppRouter {
         );
 
       case '/trip-modify':
-        return _buildRoute(
+        // Transición especial: ENTRA desde arriba → abajo, y al volver sale hacia arriba
+        return _buildTopDownRoute(
           () => _getModifyTripPage(),
           settings: settings,
-          arguments: settings.arguments,
         );
 
       case '/ticket':
@@ -114,7 +114,7 @@ class AppRouter {
 
   /// Obtener página de modificación
   static Widget _getModifyTripPage() {
-    return _getPlaceholderPage('Modificar Viaje', '/trip-modify');
+    return const ModifyTripPage();
   }
 
   /// Obtener página de ticket
@@ -168,6 +168,31 @@ class AppRouter {
             child: child,
           ),
         );
+      },
+    );
+  }
+
+  /// Ruta con transición deslizante vertical: entra desde arriba
+  /// Basado en la guía oficial de Flutter para PageRouteBuilder
+  /// Ver: Animate a page route transition (Slide from bottom) adaptado
+  static Route<dynamic> _buildTopDownRoute(
+    Widget Function() builder, {
+    required RouteSettings settings,
+  }) {
+    return PageRouteBuilder<dynamic>(
+      settings: settings,
+      pageBuilder: (context, animation, secondaryAnimation) => builder(),
+      transitionDuration: const Duration(milliseconds: 300),
+      reverseTransitionDuration: const Duration(milliseconds: 250),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // Entra desde arriba (y = -1 → 0). Al volver, sale hacia arriba automáticamente.
+        const begin = Offset(0.0, -1.0);
+        const end = Offset.zero;
+        const curve = Curves.easeOutCubic;
+
+        final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final offsetAnimation = animation.drive(tween);
+        return SlideTransition(position: offsetAnimation, child: child);
       },
     );
   }
