@@ -119,12 +119,12 @@ class AppRouter {
 
   /// Obtener página de ticket
   static Widget _getTicketPage() {
-    return _getPlaceholderPage('Ticket', '/ticket');
+    return const TicketPage();
   }
 
   /// Obtener página de reseña
   static Widget _getReviewPage() {
-    return _getPlaceholderPage('Auto Reseña', '/review');
+    return const ReviewPage();
   }
 
   /// Obtener página de detalle del viaje

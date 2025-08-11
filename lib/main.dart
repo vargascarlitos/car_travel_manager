@@ -7,6 +7,8 @@ import 'app_config/router_config.dart';
 import 'app_config/database/database_helper.dart';
 import 'domain/repositories/trip_repository.dart';
 import 'data/repositories/trip_repository_impl.dart';
+import 'domain/repositories/review_repository.dart';
+import 'data/repositories/review_repository_impl.dart';
 
 /// Punto de entrada principal de TaxiMeter Pro
 ///
@@ -29,8 +31,11 @@ class TaxiMeterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider<TripRepository>(
-      create: (_) => TripRepositoryImpl(DatabaseHelper()),
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<TripRepository>(create: (_) => TripRepositoryImpl(DatabaseHelper())),
+        RepositoryProvider<ReviewRepository>(create: (_) => ReviewRepositoryImpl(DatabaseHelper())),
+      ],
       child: MaterialApp(
         // Información de la aplicación
         title: 'TaxiMeter Pro',
