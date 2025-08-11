@@ -46,6 +46,18 @@ class TripRepositoryImpl implements TripRepository {
       throw appdb.DatabaseException('Failed to update trip: $error');
     }
   }
+
+  @override
+  Future<List<Trip>> getTrips({int limit = 20, int offset = 0}) async {
+    try {
+      final models = await _localDataSource.getTrips(limit: limit, offset: offset);
+      return models.map((m) => m.toEntity()).toList();
+    } on appdb.DatabaseException {
+      rethrow;
+    } catch (error) {
+      throw appdb.DatabaseException('Failed to list trips: $error');
+    }
+  }
 }
 
 

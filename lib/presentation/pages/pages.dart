@@ -10,6 +10,7 @@ export 'active_trip/active_trip_page.dart';
 export 'modify_trip/modify_trip_page.dart';
 export 'ticket/ticket_page.dart';
 export 'review/review_page.dart';
+export '../bloc/history/history_cubit.dart';
 
 // TODO: Agregar exports para futuras páginas:
 // export 'active_trip/active_trip_page.dart';

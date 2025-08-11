@@ -77,6 +77,22 @@ class TripLocalDataSource {
       throw appdb.DatabaseException('Error al actualizar viaje: $e');
     }
   }
+
+  Future<List<TripModel>> getTrips({int limit = 20, int offset = 0}) async {
+    try {
+      final result = await _dbHelper.query(
+        _table,
+        orderBy: 'created_at DESC',
+        limit: limit,
+        offset: offset,
+      );
+      return result.map((e) => TripModel.fromMap(e)).toList();
+    } on sqflite.DatabaseException catch (e) {
+      throw appdb.DatabaseException('Error al listar viajes: ${e.toString()}');
+    } catch (e) {
+      throw appdb.DatabaseException('Error al listar viajes: $e');
+    }
+  }
 }
 
 

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../app_config/theme_config.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../domain/repositories/trip_repository.dart';
+import '../../../domain/entities/trip.dart';
+import '../../../app_config/utils/date_time_formatter.dart';
+import '../../../app_config/utils/currency_formatter.dart';
+import '../../bloc/history/history_cubit.dart';
 
 /// Pantalla de Historial de Viajes - Temporal
 /// 
@@ -12,185 +17,169 @@ class HistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // final theme = Theme.of(context);
+
     return Scaffold(
       // ========================================
       // TOP APP BAR
       // ========================================
-      appBar: AppBar(
-        title: Text(
-          'Historial',
-          style: AppTextStyles.headlineMedium.copyWith(
-            color: AppColors.onSurface,
-            fontSize: 22,
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: AppColors.surface,
-        elevation: 4,
-        surfaceTintColor: Colors.transparent,
-        iconTheme: IconThemeData(color: AppColors.onSurface),
-      ),
+      appBar: AppBar(title: const Text('Historial')),
 
       // ========================================
       // CUERPO DE LA PÁGINA
       // ========================================
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Header con estadísticas rápidas
-              Card(
-                elevation: 4,
-                color: AppColors.primaryContainer,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _StatItem(
-                        icon: Icons.local_taxi,
-                        value: '124',
-                        label: 'Viajes',
-                      ),
-                      _StatItem(
-                        icon: Icons.payments,
-                        value: 'Gs 2.5M',
-                        label: 'Total',
-                      ),
-                      _StatItem(
-                        icon: Icons.star,
-                        value: '4.8',
-                        label: 'Rating',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Lista de viajes (placeholder)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: 10,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: AppColors.primaryContainer,
-                          child: Text(
-                            '#${123 - index}',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.onPrimaryContainer,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          'Viaje ${123 - index}',
-                          style: AppTextStyles.bodyLarge,
-                        ),
-                        subtitle: Text(
-                          'Hace ${index + 1} ${index == 0 ? 'hora' : 'horas'} • Gs ${(15000 + (index * 2000)).toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.onSurfaceVariant,
-                          ),
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryContainer,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Completado',
-                            style: AppTextStyles.bodySmall.copyWith(
-                              color: AppColors.onPrimaryContainer,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Detalle del viaje ${123 - index}',
-                                style: AppTextStyles.bodyMedium,
-                              ),
-                              backgroundColor: AppColors.primaryContainer,
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
+      body: BlocProvider(
+        create: (context) => HistoryCubit(context.read<TripRepository>())..loadInitial(),
+        child: const _HistoryView(),
       ),
 
       // ========================================
       // FLOATING ACTION BUTTON
       // ========================================
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/',
-          (route) => false,
-        ),
-        backgroundColor: AppColors.primary,
-        foregroundColor: AppColors.onPrimary,
+        onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false),
         child: const Icon(Icons.add),
-        tooltip: 'Nuevo Viaje',
       ),
     );
   }
 }
 
-/// Widget para mostrar estadísticas
-class _StatItem extends StatelessWidget {
-  const _StatItem({
-    required this.icon,
-    required this.value,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String value;
-  final String label;
+class _HistoryView extends StatelessWidget {
+  const _HistoryView();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          icon,
-          color: AppColors.primary,
-          size: 24,
+    // final theme = Theme.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: BlocBuilder<HistoryCubit, HistoryState>(
+                buildWhen: (p, c) => p.status != c.status || p.trips != c.trips,
+                builder: (context, state) {
+                  switch (state.status) {
+                    case HistoryStatus.initial:
+                    case HistoryStatus.loading:
+                      return const Center(child: CircularProgressIndicator());
+                    case HistoryStatus.failure:
+                      return _ErrorRetry(message: state.failureMessage ?? 'Error');
+                    case HistoryStatus.success:
+                    case HistoryStatus.loadingMore:
+                      if (state.trips.isEmpty) return const _EmptyState();
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          if (notification.metrics.pixels >= notification.metrics.maxScrollExtent - 200 &&
+                              context.read<HistoryCubit>().state.status != HistoryStatus.loadingMore &&
+                              !context.read<HistoryCubit>().state.reachedEnd) {
+                            context.read<HistoryCubit>().loadMore();
+                          }
+                          return false;
+                        },
+                        child: ListView.separated(
+                          itemCount: state.trips.length + (state.status == HistoryStatus.loadingMore ? 1 : 0),
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            if (index >= state.trips.length) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16.0),
+                                child: Center(child: CircularProgressIndicator()),
+                              );
+                            }
+                            final trip = state.trips[index];
+                            return _TripListItem(trip: trip);
+                          },
+                        ),
+                      );
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: AppTextStyles.titleMedium.copyWith(
-            color: AppColors.onPrimaryContainer,
-            fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+}
+
+class _TripListItem extends StatelessWidget {
+  const _TripListItem({required this.trip});
+
+  final Trip trip;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: colors.primaryContainer,
+          child: Text('#${trip.displayId ?? '-'}', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.onPrimaryContainer)),
+        ),
+        title: Text(
+          trip.passengerName,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+        subtitle: Text(
+          '${DateTimeFormatter.formatDateTime(trip.createdAt)} • ${_formatDuration(trip.duration)} • ${CurrencyFormatter.format(trip.totalAmount)}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+        ),
+        trailing: Icon(Icons.chevron_right, color: colors.onSurfaceVariant),
+        onTap: () => Navigator.of(context).pushNamed('/trip-detail', arguments: {'tripId': trip.id}),
+      ),
+    );
+  }
+
+  String _formatDuration(Duration? duration) {
+    if (duration == null) return '--:--:--';
+    final h = duration.inHours.toString().padLeft(2, '0');
+    final m = (duration.inMinutes % 60).toString().padLeft(2, '0');
+    final s = (duration.inSeconds % 60).toString().padLeft(2, '0');
+    return '$h:$m:$s';
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.history, size: 56, color: colors.onSurfaceVariant),
+          const SizedBox(height: 12),
+          Text('Sin viajes todavía', style: Theme.of(context).textTheme.titleMedium),
+          Text('Cuando completes viajes aparecerán aquí', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant)),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorRetry extends StatelessWidget {
+  const _ErrorRetry({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.error_outline, size: 48),
+          const SizedBox(height: 8),
+          Text(message, textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          FilledButton(
+            onPressed: () => context.read<HistoryCubit>().loadInitial(),
+            child: const Text('Reintentar'),
           ),
-        ),
-        Text(
-          label,
-          style: AppTextStyles.bodySmall.copyWith(
-            color: AppColors.onPrimaryContainer,
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
