@@ -123,7 +123,12 @@ class _ActiveTripViewState extends State<_ActiveTripView> {
                 children: [
                   const _SwipeDownIndicator(),
                   const SizedBox(height: 12),
-                  const _TimerCard(),
+                  // Título discreto en vez de cronómetro gigante
+                  Text(
+                    'Viaje en Curso',
+                    style: theme.textTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: 16),
                   const _CarAnimationCard(),
                   const SizedBox(height: 16),
@@ -152,47 +157,11 @@ class _SwipeDownIndicator extends StatelessWidget {
   }
 }
 
-class _TimerCard extends StatelessWidget {
-  const _TimerCard();
-
-  String _format(Duration d) {
-    final h = d.inHours.remainder(100).toString().padLeft(2, '0');
-    final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$h:$m:$s';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Card(
-      color: colors.primaryContainer,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Center(
-          child: BlocBuilder<TimerCubit, TimerState>(
-            buildWhen: (p, c) {
-              final prev = p is TimerRunning ? p.elapsed.inSeconds : (p is TimerPaused ? p.elapsed.inSeconds : -1);
-              final curr = c is TimerRunning ? c.elapsed.inSeconds : (c is TimerPaused ? c.elapsed.inSeconds : -1);
-              return prev != curr;
-            },
-            builder: (context, state) {
-              final d = state is TimerRunning
-                  ? state.elapsed
-                  : state is TimerPaused
-                      ? state.elapsed
-                      : Duration.zero;
-              return Text(
-                _format(d),
-                style: theme.textTheme.displayMedium?.copyWith(color: colors.onPrimaryContainer),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
+String _formatTimer(Duration d) {
+  final h = d.inHours.remainder(100).toString().padLeft(2, '0');
+  final m = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+  final s = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+  return '$h:$m:$s';
 }
 
 class _CarAnimationCard extends StatelessWidget {
@@ -237,6 +206,32 @@ class _TripInfoCard extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Cronómetro más discreto dentro de la tarjeta de información
+                Row(
+                  children: [
+                    Icon(Icons.timer_outlined, color: colors.primary),
+                    const SizedBox(width: 8),
+                    BlocBuilder<TimerCubit, TimerState>(
+                      buildWhen: (p, c) {
+                        final prev = p is TimerRunning ? p.elapsed.inSeconds : (p is TimerPaused ? p.elapsed.inSeconds : -1);
+                        final curr = c is TimerRunning ? c.elapsed.inSeconds : (c is TimerPaused ? c.elapsed.inSeconds : -1);
+                        return prev != curr;
+                      },
+                      builder: (context, state) {
+                        final d = state is TimerRunning
+                            ? state.elapsed
+                            : state is TimerPaused
+                                ? state.elapsed
+                                : Duration.zero;
+                        return Text(
+                          _formatTimer(d),
+                          style: theme.textTheme.headlineSmall, // tamaño moderado
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 Row(children: [Icon(Icons.person, color: colors.primary), const SizedBox(width: 8), Text('Pasajero', style: theme.textTheme.titleMedium)]),
                 const SizedBox(height: 6),
                 Text(trip.passengerName, style: theme.textTheme.bodyLarge),
