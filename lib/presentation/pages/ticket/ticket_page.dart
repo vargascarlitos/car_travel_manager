@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/trip.dart';
 import '../../../domain/repositories/trip_repository.dart';
 import '../../../app_config/utils/currency_formatter.dart';
-import '../../../app_config/utils/date_time_formatter.dart';
+// import '../../../app_config/utils/date_time_formatter.dart';
 
 class TicketPage extends StatelessWidget {
   const TicketPage({super.key});
@@ -15,10 +15,7 @@ class TicketPage extends StatelessWidget {
     final args = ModalRoute.of(context)?.settings.arguments;
     final tripId = (args is Map && args['tripId'] is String) ? args['tripId'] as String : null;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Ticket del Viaje'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('VIAJE COMPLETADO'), centerTitle: true),
       body: SafeArea(
         child: tripId == null
             ? const _TicketError(message: 'Falta el identificador de viaje')
@@ -84,61 +81,42 @@ class _TicketView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Header con pasajero
+          // Card con precio y pasajero
           Card(
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Pasajero', style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurface)),
+                  Text('Precio a pagar de', style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurface)),
                   const SizedBox(height: 6),
                   Text(trip.passengerName, style: theme.textTheme.headlineSmall?.copyWith(color: colors.onSurface)),
-                  const SizedBox(height: 4),
-                  Text('Viaje #${trip.displayId ?? '—'}', style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant)),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Monto destacado
-          Center(
-            child: Text(
-              CurrencyFormatter.format(trip.totalAmount),
-              style: theme.textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold, color: colors.onSurface),
-              textAlign: TextAlign.center,
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Resumen
-          Card(
-            shape: RoundedRectangleBorder(
-              side: BorderSide(color: colors.outline),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _SummaryRow(icon: Icons.timer_outlined, label: 'Duración', value: _formatTimer(trip.duration)),
-                  const SizedBox(height: 12),
-                  _SummaryRow(icon: Icons.directions_car, label: 'Servicio', value: trip.serviceType.name),
-                  const SizedBox(height: 12),
-                  _SummaryRow(icon: Icons.confirmation_number_outlined, label: 'ID', value: '#${trip.displayId ?? '—'}'),
-                  const SizedBox(height: 12),
-                  _SummaryRow(
-                    icon: Icons.event_outlined,
-                    label: 'Fecha',
-                    value: DateTimeFormatter.formatDateTime(trip.endTime ?? trip.updatedAt),
+                  const SizedBox(height: 16),
+                  Text(
+                    CurrencyFormatter.format(trip.totalAmount),
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.onSurface,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
                 ],
               ),
             ),
           ),
+
+          const SizedBox(height: 16),
+
+          // Resumen simple (sin card vistoso)
+          _SummaryRow(icon: Icons.timer_outlined, label: 'Duración', value: _formatTimer(trip.duration)),
+          const SizedBox(height: 12),
+          _SummaryRow(icon: Icons.directions_car, label: 'Servicio', value: trip.serviceType.name),
+          const SizedBox(height: 12),
+          // ID removido según pedido
+          // _SummaryRow(icon: Icons.confirmation_number_outlined, label: 'ID', value: '#${trip.displayId ?? '—'}'),
+          // const SizedBox(height: 12),
+          // Fecha opcional (si quieres mantenerla)
+          // _SummaryRow(icon: Icons.event_outlined, label: 'Fecha', value: DateTimeFormatter.formatDateTime(trip.endTime ?? trip.updatedAt)),
 
           const SizedBox(height: 24),
         ],
