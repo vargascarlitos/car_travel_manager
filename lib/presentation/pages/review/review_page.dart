@@ -74,22 +74,35 @@ class _ReviewView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text('Comentarios (opcional)', style: theme.textTheme.titleMedium),
-                const SizedBox(height: 8),
                 BlocBuilder<ReviewCubit, ReviewState>(
-                  buildWhen: (p, c) => p.comment != c.comment,
+                  buildWhen: (p, c) => p.rating != c.rating || p.comment != c.comment,
                   builder: (context, state) {
-                    return TextField(
-                      maxLines: 5,
-                      onChanged: context.read<ReviewCubit>().commentChanged,
-                      decoration: InputDecoration(
-                        hintText: 'Escribe tu comentario (máx. 1000)',
-                        counterText: '${state.comment.length}/1000',
-                      ),
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: state.rating < 1
+                          ? const SizedBox.shrink()
+                          : Column(
+                              key: const ValueKey('comments-section'),
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text('Comentarios (opcional)', style: theme.textTheme.titleMedium),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  maxLines: 5,
+                                  onChanged: context.read<ReviewCubit>().commentChanged,
+                                  decoration: InputDecoration(
+                                    hintText: 'Escribe tu comentario (máx. 1000)',
+                                    counterText: '${state.comment.length}/1000',
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                              ],
+                            ),
                     );
                   },
                 ),
-                const SizedBox(height: 24),
               ],
             ),
           ),
