@@ -31,7 +31,12 @@ class HistoryCubit extends Cubit<HistoryState> {
   Future<void> _loadPage({required bool reset}) async {
     try {
       final nextOffset = reset ? 0 : state.offset;
-      final result = await _tripRepository.getTrips(limit: _pageSize, offset: nextOffset);
+      // Mostrar solo viajes completados en historial
+      final result = await _tripRepository.getTrips(
+        limit: _pageSize,
+        offset: nextOffset,
+        status: TripStatus.completed,
+      );
       final reachedEnd = result.length < _pageSize;
       final updated = reset ? result : [...state.trips, ...result];
       emit(state.copyWith(

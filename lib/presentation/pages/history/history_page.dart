@@ -112,21 +112,60 @@ class _TripListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: colors.primaryContainer,
-          child: Text('#${trip.displayId ?? '-'}', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.onPrimaryContainer)),
-        ),
-        title: Text(
-          trip.passengerName,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        subtitle: Text(
-          '${DateTimeFormatter.formatDateTime(trip.createdAt)} • ${_formatDuration(trip.duration)} • ${CurrencyFormatter.format(trip.totalAmount)}',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-        ),
-        trailing: Icon(Icons.chevron_right, color: colors.onSurfaceVariant),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: () => Navigator.of(context).pushNamed('/trip-detail', arguments: {'tripId': trip.id}),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 40,
+                child: Center(
+                  child: CircleAvatar(
+                    backgroundColor: colors.primaryContainer,
+                    radius: 16,
+                    child: Text(
+                      '#${trip.displayId ?? '-'}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.onPrimaryContainer),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(trip.passengerName, style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 2),
+                    Text(
+                      DateTimeFormatter.formatDateTime(trip.createdAt),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                    ),
+                    Text(
+                      _formatDuration(trip.duration),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                    ),
+                    Text(
+                      CurrencyFormatter.format(trip.totalAmount),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 24,
+                child: Center(
+                  child: Icon(Icons.chevron_right, color: colors.onSurfaceVariant),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

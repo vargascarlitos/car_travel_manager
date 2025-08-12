@@ -48,15 +48,27 @@ class TripRepositoryImpl implements TripRepository {
   }
 
   @override
-  Future<List<Trip>> getTrips({int limit = 20, int offset = 0}) async {
+  Future<List<Trip>> getTrips({int limit = 20, int offset = 0, TripStatus? status}) async {
     try {
-      final models = await _localDataSource.getTrips(limit: limit, offset: offset);
+      final String? statusDb = status != null ? _statusToDb(status) : null;
+      final models = await _localDataSource.getTrips(limit: limit, offset: offset, statusDb: statusDb);
       return models.map((m) => m.toEntity()).toList();
     } on appdb.DatabaseException {
       rethrow;
     } catch (error) {
       throw appdb.DatabaseException('Failed to list trips: $error');
     }
+  }
+}
+
+String _statusToDb(TripStatus status) {
+  switch (status) {
+    case TripStatus.pending:
+      return 'pending';
+    case TripStatus.inProgress:
+      return 'in_progress';
+    case TripStatus.completed:
+      return 'completed';
   }
 }
 

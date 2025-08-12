@@ -78,10 +78,12 @@ class TripLocalDataSource {
     }
   }
 
-  Future<List<TripModel>> getTrips({int limit = 20, int offset = 0}) async {
+  Future<List<TripModel>> getTrips({int limit = 20, int offset = 0, String? statusDb}) async {
     try {
       final result = await _dbHelper.query(
         _table,
+        where: statusDb != null ? 'status = ?' : null,
+        whereArgs: statusDb != null ? [statusDb] : null,
         orderBy: 'created_at DESC',
         limit: limit,
         offset: offset,

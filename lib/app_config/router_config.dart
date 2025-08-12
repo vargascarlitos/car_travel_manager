@@ -129,7 +129,7 @@ class AppRouter {
 
   /// Obtener página de detalle del viaje
   static Widget _getTripDetailPage() {
-    return _getPlaceholderPage('Detalle del Viaje', '/trip-detail');
+    return const TripDetailPage();
   }
 
   // ========================================
@@ -206,49 +206,7 @@ class AppRouter {
   }
 
   /// Página de placeholder para rutas no implementadas
-  static Widget _getPlaceholderPage(String title, String route) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        centerTitle: true,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.construction,
-              size: 64,
-              color: Colors.grey[600],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Pantalla en construcción',
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.grey[700],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Ruta: $route',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Volver'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // _getPlaceholderPage eliminado (todas las rutas implementadas)
 
   /// Página de error
   static Widget _getErrorPage(String message) {
