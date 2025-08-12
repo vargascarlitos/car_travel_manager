@@ -6,8 +6,8 @@ import '../../../app_config/router_config.dart';
 import '../../bloc/preview/preview_cubit.dart';
 import '../../bloc/preview/preview_state.dart';
 import '../../widgets/slide_button.dart';
-import '../../../app_config/utils/date_time_formatter.dart';
-import '../../../app_config/utils/trip_identifier.dart';
+// import '../../../app_config/utils/date_time_formatter.dart';
+// import '../../../app_config/utils/trip_identifier.dart';
 
 class PreviewPage extends StatelessWidget {
   const PreviewPage({super.key});
@@ -71,13 +71,7 @@ class PreviewView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Confirmar Viaje'),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () => context.pushReplacementNamed('/'),
-            tooltip: 'Editar datos',
-          ),
-        ],
+        iconTheme: IconThemeData(color: colors.onSurfaceVariant),
       ),
       body: SafeArea(
         child: Padding(
@@ -97,19 +91,18 @@ class PreviewView extends StatelessWidget {
                 );
               }
 
-              return ListView(
-                children: const [
-                  _HeaderReadyCard(),
-                  SizedBox(height: 16),
-                  _PassengerCard(),
-                  SizedBox(height: 16),
-                  _ServiceTypeCard(),
-                  SizedBox(height: 16),
-                  _TripInfoCard(),
-                  SizedBox(height: 24),
-                  _EditAndStartButtons(),
-                ],
-              );
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: const [
+                    _HeaderReadyCard(),
+                    SizedBox(height: 16),
+                    _PassengerCard(),
+                    SizedBox(height: 16),
+                    _ServiceTypeCard(),
+                    Spacer(),
+                    _EditAndStartButtons(),
+                  ],
+                );
             },
           ),
         ),
@@ -215,47 +208,7 @@ class _ServiceTypeCard extends StatelessWidget {
   }
 }
 
-class _TripInfoCard extends StatelessWidget {
-  const _TripInfoCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: BlocBuilder<PreviewCubit, PreviewState>(
-          buildWhen: (p, c) => p.trip != c.trip,
-          builder: (context, state) {
-            final trip = state.trip!;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.info, color: colors.primary),
-                    const SizedBox(width: 8),
-                    Text('Información del Viaje', style: theme.textTheme.titleMedium),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text('Viaje número: ${trip.displayId ?? TripIdentifier.fromTrip(trip)}', style: theme.textTheme.bodyLarge),
-                const SizedBox(height: 8),
-                Text(
-                  DateTimeFormatter.formatDateTime(trip.createdAt),
-                  style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant),
-                ),
-                const SizedBox(height: 8),
-                Text('Pendiente', style: theme.textTheme.bodyMedium?.copyWith(color: colors.tertiary)),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
+// _TripInfoCard eliminado por requerimiento
 
 class _EditAndStartButtons extends StatelessWidget {
   const _EditAndStartButtons();
@@ -265,12 +218,6 @@ class _EditAndStartButtons extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        OutlinedButton.icon(
-          onPressed: () => context.pushReplacementNamed('/'),
-          icon: const Icon(Icons.edit),
-          label: const Text('Editar datos'),
-        ),
-        const SizedBox(height: 16),
         SlideButton(
           text: 'Deslizar para Iniciar',
           onSlideCompleted: () {
