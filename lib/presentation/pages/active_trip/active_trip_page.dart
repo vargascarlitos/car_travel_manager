@@ -17,16 +17,20 @@ class ActiveTripPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)?.settings.arguments;
-    final tripId = (args is Map && args['tripId'] is String) ? args['tripId'] as String : null;
+    final tripId =
+        (args is Map && args['tripId'] is String)
+            ? args['tripId'] as String
+            : null;
 
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => TimerCubit()),
         BlocProvider(
-          create: (ctx) => ActiveTripCubit(
-            repository: RepositoryProvider.of<TripRepository>(ctx),
-            timer: ctx.read<TimerCubit>(),
-          )..startTrip(tripId ?? ''),
+          create:
+              (ctx) => ActiveTripCubit(
+                repository: RepositoryProvider.of<TripRepository>(ctx),
+                timer: ctx.read<TimerCubit>(),
+              )..startTrip(tripId ?? ''),
         ),
       ],
       child: const _ActiveTripView(),
@@ -44,7 +48,10 @@ class _ActiveTripView extends StatefulWidget {
 class _ActiveTripViewState extends State<_ActiveTripView> {
   double _dragAccumulatedDy = 0;
 
-  Future<void> _navigateToModifyIfNeeded(BuildContext context, {double? velocity}) async {
+  Future<void> _navigateToModifyIfNeeded(
+    BuildContext context, {
+    double? velocity,
+  }) async {
     final v = velocity ?? 0;
     if (_dragAccumulatedDy > 80 || v > 300) {
       final state = context.read<ActiveTripCubit>().state;
@@ -61,6 +68,7 @@ class _ActiveTripViewState extends State<_ActiveTripView> {
     }
     _dragAccumulatedDy = 0;
   }
+
   @override
   void initState() {
     super.initState();
@@ -83,28 +91,28 @@ class _ActiveTripViewState extends State<_ActiveTripView> {
     return BlocListener<ActiveTripCubit, ActiveTripState>(
       listenWhen: (p, c) => p.status != c.status,
       listener: (context, state) {
-        if (state.status == ActiveTripStatus.failure && state.failureMessage != null) {
+        if (state.status == ActiveTripStatus.failure &&
+            state.failureMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.failureMessage!), backgroundColor: colors.error),
+            SnackBar(
+              content: Text(state.failureMessage!),
+              backgroundColor: colors.error,
+            ),
           );
         }
         if (state.status == ActiveTripStatus.completed && state.trip != null) {
-          Navigator.pushReplacementNamed(context, '/ticket', arguments: {
-            'tripId': state.trip!.id,
-            'durationSeconds': state.trip!.duration?.inSeconds,
-          });
+          Navigator.pushReplacementNamed(
+            context,
+            '/ticket',
+            arguments: {
+              'tripId': state.trip!.id,
+              'durationSeconds': state.trip!.duration?.inSeconds,
+            },
+          );
         }
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: BlocBuilder<ActiveTripCubit, ActiveTripState>(
-            buildWhen: (p, c) => p.trip?.displayId != c.trip?.displayId,
-            builder: (context, state) => Text(
-              state.trip?.displayId != null ? 'Trip #${state.trip!.displayId}' : 'Viaje en Curso',
-            ),
-          ),
-          centerTitle: true,
-        ),
+        appBar: AppBar(),
         body: SafeArea(
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
@@ -114,7 +122,10 @@ class _ActiveTripViewState extends State<_ActiveTripView> {
               }
             },
             onVerticalDragEnd: (details) async {
-              await _navigateToModifyIfNeeded(context, velocity: details.primaryVelocity);
+              await _navigateToModifyIfNeeded(
+                context,
+                velocity: details.primaryVelocity,
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -134,7 +145,9 @@ class _ActiveTripViewState extends State<_ActiveTripView> {
                   const SizedBox(height: 16),
                   const _TripInfoCard(),
                   const Spacer(),
-                  _FinishSlideButton(onFinish: context.read<ActiveTripCubit>().finishTrip),
+                  _FinishSlideButton(
+                    onFinish: context.read<ActiveTripCubit>().finishTrip,
+                  ),
                 ],
               ),
             ),
@@ -213,30 +226,50 @@ class _TripInfoCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     BlocBuilder<TimerCubit, TimerState>(
                       buildWhen: (p, c) {
-                        final prev = p is TimerRunning ? p.elapsed.inSeconds : (p is TimerPaused ? p.elapsed.inSeconds : -1);
-                        final curr = c is TimerRunning ? c.elapsed.inSeconds : (c is TimerPaused ? c.elapsed.inSeconds : -1);
+                        final prev =
+                            p is TimerRunning
+                                ? p.elapsed.inSeconds
+                                : (p is TimerPaused ? p.elapsed.inSeconds : -1);
+                        final curr =
+                            c is TimerRunning
+                                ? c.elapsed.inSeconds
+                                : (c is TimerPaused ? c.elapsed.inSeconds : -1);
                         return prev != curr;
                       },
                       builder: (context, state) {
-                        final d = state is TimerRunning
-                            ? state.elapsed
-                            : state is TimerPaused
+                        final d =
+                            state is TimerRunning
+                                ? state.elapsed
+                                : state is TimerPaused
                                 ? state.elapsed
                                 : Duration.zero;
                         return Text(
                           _formatTimer(d),
-                          style: theme.textTheme.headlineSmall, // tamaño moderado
+                          style:
+                              theme.textTheme.headlineSmall, // tamaño moderado
                         );
                       },
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                Row(children: [Icon(Icons.person, color: colors.primary), const SizedBox(width: 8), Text('Pasajero', style: theme.textTheme.titleMedium)]),
+                Row(
+                  children: [
+                    Icon(Icons.person, color: colors.primary),
+                    const SizedBox(width: 8),
+                    Text('Pasajero', style: theme.textTheme.titleMedium),
+                  ],
+                ),
                 const SizedBox(height: 6),
                 Text(trip.passengerName, style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 12),
-                Row(children: [Icon(Icons.directions_car, color: colors.primary), const SizedBox(width: 8), Text('Servicio', style: theme.textTheme.titleMedium)]),
+                Row(
+                  children: [
+                    Icon(Icons.directions_car, color: colors.primary),
+                    const SizedBox(width: 8),
+                    Text('Servicio', style: theme.textTheme.titleMedium),
+                  ],
+                ),
                 const SizedBox(height: 6),
                 Text(trip.serviceType.name),
               ],
@@ -256,10 +289,14 @@ class _FinishSlideButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Theme(
-      data: Theme.of(context).copyWith(colorScheme: Theme.of(context).colorScheme.copyWith(primary: colors.error, onPrimary: colors.onError, primaryContainer: colors.errorContainer)),
+      data: Theme.of(context).copyWith(
+        colorScheme: Theme.of(context).colorScheme.copyWith(
+          primary: colors.error,
+          onPrimary: colors.onError,
+          primaryContainer: colors.errorContainer,
+        ),
+      ),
       child: SlideButton(text: 'Finalizar viaje', onSlideCompleted: onFinish),
     );
   }
 }
-
-
