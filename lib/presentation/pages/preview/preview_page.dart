@@ -6,6 +6,7 @@ import '../../../app_config/router_config.dart';
 import '../../bloc/preview/preview_cubit.dart';
 import '../../bloc/preview/preview_state.dart';
 import '../../widgets/slide_button.dart';
+import '../../../app_config/utils/service_type_label.dart';
 // import '../../../app_config/utils/date_time_formatter.dart';
 // import '../../../app_config/utils/trip_identifier.dart';
 
@@ -196,7 +197,7 @@ class _ServiceTypeCard extends StatelessWidget {
                   children: [
                     Text('Tipo de Servicio', style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurface)),
                     const SizedBox(height: 6),
-                    Text(_serviceLabel(state.trip!.serviceType), style: theme.textTheme.headlineSmall?.copyWith(color: colors.onSurface)),
+                    Text(serviceTypeLabel(state.trip!.serviceType), style: theme.textTheme.headlineSmall?.copyWith(color: colors.onSurface)),
                   ],
                 ),
               ),
@@ -230,15 +231,6 @@ class _EditAndStartButtons extends StatelessWidget {
   }
 }
 
-String _serviceLabel(ServiceType type) {
-  switch (type) {
-    case ServiceType.economy:
-      return 'Económico';
-    case ServiceType.uberX:
-      return 'UberX';
-    case ServiceType.aireAc:
-      return 'Aire Acondicionado';
-  }
-}
+// Labels centralizados en service_type_label.dart
 
 

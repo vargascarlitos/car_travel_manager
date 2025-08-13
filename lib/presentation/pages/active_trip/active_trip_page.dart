@@ -6,6 +6,7 @@ import '../../bloc/timer/timer_state.dart';
 import '../../bloc/active_trip/active_trip_cubit.dart';
 import '../../bloc/active_trip/active_trip_state.dart';
 import '../../widgets/slide_button.dart';
+import '../../../app_config/utils/service_type_label.dart';
 import 'package:lottie/lottie.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -271,7 +272,7 @@ class _TripInfoCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 6),
-                Text(trip.serviceType.name),
+                Text(serviceTypeLabel(trip.serviceType)),
               ],
             );
           },

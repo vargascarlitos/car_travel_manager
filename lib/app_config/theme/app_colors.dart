@@ -62,7 +62,7 @@ class AppColors {
 
   /// Superficie principal - Fondo dark principal
   /// Usado para: Fondo general de la app, AppBars
-  static const Color surface = Color(0xFF121212);
+  static const Color surface = Color(0xFF253238);
 
   /// Superficie variante - Elementos elevados
   /// Usado para: Cards, botones elevados, elementos con contraste

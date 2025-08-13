@@ -46,7 +46,7 @@ class FareAmount extends FormzInput<String, FareAmountValidationError> {
   const FareAmount.dirty([super.value = '']) : super.dirty();
 
   static const int minAmount = 5000;
-  static const int maxAmount = 1000000;
+  static const int maxAmount = 100000000;
 
   @override
   FareAmountValidationError? validator(String value) {

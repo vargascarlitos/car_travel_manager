@@ -6,6 +6,7 @@ import '../../bloc/trip_detail/trip_detail_cubit.dart';
 import '../../../domain/entities/review.dart';
 import '../../../app_config/utils/currency_formatter.dart';
 import '../../../app_config/utils/date_time_formatter.dart';
+import '../../../app_config/utils/service_type_label.dart';
 
 class TripDetailPage extends StatelessWidget {
   const TripDetailPage({super.key});
@@ -92,7 +93,7 @@ class _TripDetailView extends StatelessWidget {
                       // Info del viaje
                       _InfoRow(icon: Icons.timer_outlined, label: 'Duración', value: _formatDuration(trip.duration)),
                       const SizedBox(height: 12),
-                      _InfoRow(icon: Icons.directions_car, label: 'Servicio', value: trip.serviceType.name),
+                      _InfoRow(icon: Icons.directions_car, label: 'Servicio', value: serviceTypeLabel(trip.serviceType)),
                       const SizedBox(height: 12),
                       _InfoRow(icon: Icons.event_outlined, label: 'Inicio', value: DateTimeFormatter.formatDateTime(trip.startTime ?? trip.createdAt)),
                       const SizedBox(height: 12),

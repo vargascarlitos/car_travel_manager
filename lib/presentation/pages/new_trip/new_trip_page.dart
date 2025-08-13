@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../../app_config/utils/currency_formatter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/trip.dart';
+import '../../../app_config/utils/service_type_label.dart';
 import '../../../app_config/router_config.dart';
 import '../../bloc/new_trip/new_trip_cubit.dart';
 import '../../bloc/new_trip/new_trip_state.dart';
@@ -272,9 +273,9 @@ class _ServiceTypeSelector extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               children: const [
-                _ServiceTypeTile(label: 'Economy', type: ServiceType.economy),
-                _ServiceTypeTile(label: 'UberX', type: ServiceType.uberX),
-                _ServiceTypeTile(label: 'Aire AC', type: ServiceType.aireAc),
+                _ServiceTypeTile(type: ServiceType.economy),
+                _ServiceTypeTile(type: ServiceType.uberX),
+                _ServiceTypeTile(type: ServiceType.aireAc),
               ],
             );
           },
@@ -285,9 +286,8 @@ class _ServiceTypeSelector extends StatelessWidget {
 }
 
 class _ServiceTypeTile extends StatelessWidget {
-  const _ServiceTypeTile({required this.label, required this.type});
+  const _ServiceTypeTile({required this.type});
 
-  final String label;
   final ServiceType type;
 
   @override
@@ -314,7 +314,7 @@ class _ServiceTypeTile extends StatelessWidget {
             onTap: () => context.read<NewTripCubit>().serviceTypeChanged(type),
             child: Center(
               child: Text(
-                label,
+                serviceTypeLabel(type),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: fg,

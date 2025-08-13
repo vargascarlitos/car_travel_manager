@@ -115,7 +115,7 @@ class _ModifyTripPageState extends State<ModifyTripPage> {
                         DropdownButtonFormField<ServiceType>(
                           value: _serviceType,
                           items: const [
-                            DropdownMenuItem(value: ServiceType.economy, child: Text('Economy')),
+                            DropdownMenuItem(value: ServiceType.economy, child: Text('Económico')),
                             DropdownMenuItem(value: ServiceType.uberX, child: Text('UberX')),
                             DropdownMenuItem(value: ServiceType.aireAc, child: Text('Aire AC')),
                           ],
