@@ -82,6 +82,9 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+  # Generador de íconos para Android/iOS
+  flutter_launcher_icons: ^0.13.1
+
   # 🧪 Testing y Desarrollo
   # Testing para BLoC y mocking (mencionado en entregables)
   mockito: ^5.4.2
@@ -129,3 +132,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path_android: "android/app/src/main/res/play_store_512.png"
+  image_path_ios: "android/app/src/main/res/play_store_512.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "android/app/src/main/res/play_store_512.png"
