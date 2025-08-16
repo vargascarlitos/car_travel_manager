@@ -7,6 +7,7 @@ export 'ticket/ticket_page.dart';
 export 'review/review_page.dart';
 export '../bloc/history/history_bloc.dart';
 export 'trip_detail/trip_detail_page.dart';
+export 'recovery/pending_recovery_page.dart';
 
 // TODO: Agregar exports para futuras páginas:
 // export 'active_trip/active_trip_page.dart';

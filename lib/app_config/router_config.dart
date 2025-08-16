@@ -75,6 +75,12 @@ class AppRouter {
           arguments: settings.arguments,
         );
 
+      case '/pending-recovery':
+        return _buildRoute(
+          () => _getPendingRecoveryPage(),
+          settings: settings,
+        );
+
       default:
         return _buildErrorRoute(settings.name);
     }
@@ -130,6 +136,11 @@ class AppRouter {
   /// Obtener página de detalle del viaje
   static Widget _getTripDetailPage() {
     return const TripDetailPage();
+  }
+
+  /// Obtener página de recuperación de viajes pendientes
+  static Widget _getPendingRecoveryPage() {
+    return const PendingRecoveryPage();
   }
 
   // ========================================
@@ -314,6 +325,7 @@ class AppRouter {
         '/ticket': 'Ticket del Viaje',
         '/review': 'Auto Reseña',
         '/trip-detail': 'Detalle del Viaje',
+        '/pending-recovery': 'Recuperar Pendiente',
       };
 
   /// Verificar si una ruta es válida

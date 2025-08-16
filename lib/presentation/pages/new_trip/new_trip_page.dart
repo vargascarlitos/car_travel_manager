@@ -58,6 +58,11 @@ class NewTripView extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
+            onPressed: () => Navigator.pushNamed(context, '/pending-recovery'),
+            icon: const Icon(Icons.warning_amber_rounded),
+            tooltip: 'Recuperar pendiente',
+          ),
+          IconButton(
             onPressed: () => Navigator.pushNamed(context, '/history'),
             icon: const Icon(Icons.history),
             tooltip: 'Historial',
