@@ -41,6 +41,61 @@ class DatabaseDemo {
     }
   }
 
+  /// Inserta viajes de prueba en varios días para validar el historial agrupado
+  ///
+  /// - [days]: cantidad de días hacia atrás (incluye hoy)
+  /// - [perDay]: cantidad de viajes por día
+  static Future<void> seedHistoryTrips({int days = 5, int perDay = 4}) async {
+    final db = DatabaseHelper();
+    final now = DateTime.now();
+
+    try {
+      await db.transaction<void>((txn) async {
+        for (int i = 0; i < days; i++) {
+          final baseDay = now.subtract(Duration(days: i));
+          // Normalizar al inicio del día local
+          final dayStart = DateTime(baseDay.year, baseDay.month, baseDay.day);
+
+          for (int j = 0; j < perDay; j++) {
+            // Espaciar viajes dentro del día y garantizar orden descendente por created_at
+            final start = dayStart.add(Duration(hours: 9 + j * 2));
+            final end = start.add(Duration(minutes: 10 + (j * 7)));
+            final createdAt = end;
+
+            // Calcular próximo display_id secuencial
+            final res = await txn.rawQuery('SELECT COALESCE(MAX(${DatabaseConfig.fieldDisplayId}), 0) + 1 as next FROM ${DatabaseConfig.tripsTable}');
+            final nextRaw = res.first['next'];
+            final int nextDisplayId = (nextRaw is int) ? nextRaw : int.parse(nextRaw.toString());
+
+            final id = DatabaseConfig.generateId();
+            final passenger = 'Seeder ${i + 1} - ${j + 1}';
+            final amount = 20000 + (i * 1500) + (j * 800);
+            final service = DatabaseConfig.serviceTypes[(i + j) % DatabaseConfig.serviceTypes.length];
+
+            await txn.insert(DatabaseConfig.tripsTable, {
+              DatabaseConfig.fieldId: id,
+              DatabaseConfig.fieldDisplayId: nextDisplayId,
+              DatabaseConfig.fieldPassengerName: passenger,
+              DatabaseConfig.fieldTotalAmount: amount,
+              DatabaseConfig.fieldServiceType: service,
+              DatabaseConfig.fieldStartTime: DatabaseConfig.formatTimestamp(start),
+              DatabaseConfig.fieldEndTime: DatabaseConfig.formatTimestamp(end),
+              DatabaseConfig.fieldDurationSeconds: end.difference(start).inSeconds,
+              DatabaseConfig.fieldStatus: 'completed',
+              DatabaseConfig.fieldCreatedAt: DatabaseConfig.formatTimestamp(createdAt),
+              DatabaseConfig.fieldUpdatedAt: DatabaseConfig.formatTimestamp(createdAt),
+            });
+          }
+        }
+      });
+
+      MyLogger.log('✅ Seed completado: $days días × $perDay viajes por día');
+    } catch (e) {
+      MyLogger.log('❌ Error en seed de historial: $e');
+      rethrow;
+    }
+  }
+
   /// Iniciar un viaje (cambiar estado a in_progress)
   static Future<void> startTrip(String tripId) async {
     final db = DatabaseHelper();

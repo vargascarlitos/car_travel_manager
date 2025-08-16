@@ -1,3 +1,5 @@
+import 'package:car_travel_manager/app_config/database/database_demo.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -13,12 +15,15 @@ import 'data/repositories/review_repository_impl.dart';
 ///
 /// Aplicación de taxímetro con arquitectura Clean y BLoC.
 /// Implementa Material Design 3 con Bolt Dark Theme.
-void main() async {
+Future<void> main() async {
   // Asegurar que Flutter esté inicializado
   WidgetsFlutterBinding.ensureInitialized();
 
   // Configurar la UI del sistema (barra de estado, etc.)
   AppTheme.setSystemUIOverlayStyle();
+  if (kDebugMode) {
+    await DatabaseDemo.seedHistoryTrips(days: 7, perDay: 6);
+  }
 
   // Ejecutar la aplicación
   runApp(const TaxiMeterApp());

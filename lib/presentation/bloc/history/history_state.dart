@@ -1,4 +1,4 @@
-part of 'history_cubit.dart';
+part of 'history_bloc.dart';
 
 enum HistoryStatus { initial, loading, loadingMore, success, failure }
 
@@ -9,6 +9,7 @@ class HistoryState extends Equatable {
     this.reachedEnd = false,
     this.offset = 0,
     this.failureMessage,
+    this.collapsedDays = const <DateTime>{},
   });
 
   final HistoryStatus status;
@@ -16,6 +17,8 @@ class HistoryState extends Equatable {
   final bool reachedEnd;
   final int offset;
   final String? failureMessage;
+  /// Conjunto de días (normalizados a AAAA-MM-DD) que están colapsados
+  final Set<DateTime> collapsedDays;
 
   HistoryState copyWith({
     HistoryStatus? status,
@@ -23,6 +26,7 @@ class HistoryState extends Equatable {
     bool? reachedEnd,
     int? offset,
     String? failureMessage,
+    Set<DateTime>? collapsedDays,
   }) {
     return HistoryState(
       status: status ?? this.status,
@@ -30,11 +34,12 @@ class HistoryState extends Equatable {
       reachedEnd: reachedEnd ?? this.reachedEnd,
       offset: offset ?? this.offset,
       failureMessage: failureMessage ?? this.failureMessage,
+      collapsedDays: collapsedDays ?? this.collapsedDays,
     );
   }
 
   @override
-  List<Object?> get props => [status, trips, reachedEnd, offset, failureMessage];
+  List<Object?> get props => [status, trips, reachedEnd, offset, failureMessage, collapsedDays];
 }
 
 
