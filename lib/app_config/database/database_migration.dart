@@ -1,3 +1,4 @@
+import 'package:car_travel_manager/app_config/utils/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'database_config.dart';
 import 'database_tables.dart';
@@ -16,7 +17,7 @@ class DatabaseMigration {
   /// Ejecutar migración de una versión a otra
   static Future<void> migrate(Database db, int oldVersion, int newVersion) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} Iniciando migración v$oldVersion → v$newVersion');
+      MyLogger.log('${DatabaseConfig.logPrefix} Iniciando migración v$oldVersion → v$newVersion');
     }
 
     try {
@@ -35,7 +36,7 @@ class DatabaseMigration {
         await _migrateToVersion(db, version);
         
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} ✅ Migrado a versión $version');
+          MyLogger.log('${DatabaseConfig.logPrefix} ✅ Migrado a versión $version');
         }
       }
 
@@ -43,18 +44,18 @@ class DatabaseMigration {
       await _releaseSavepoint(db, 'migration_start');
 
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ✅ Migración completada exitosamente');
+        MyLogger.log('${DatabaseConfig.logPrefix} ✅ Migración completada exitosamente');
       }
     } catch (e) {
       // Rollback en caso de error
       try {
         await _rollbackToSavepoint(db, 'migration_start');
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} ⚠️ Rollback realizado por error en migración');
+          MyLogger.log('${DatabaseConfig.logPrefix} ⚠️ Rollback realizado por error en migración');
         }
       } catch (rollbackError) {
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} ❌ Error en rollback: $rollbackError');
+          MyLogger.log('${DatabaseConfig.logPrefix} ❌ Error en rollback: $rollbackError');
         }
       }
       
@@ -88,7 +89,7 @@ class DatabaseMigration {
   /// Migración a versión 2: Optimizaciones para sincronización con backend
   static Future<void> _migrateToV2(Database db) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} Ejecutando migración v1 → v2 (Backend Sync)...');
+      MyLogger.log('${DatabaseConfig.logPrefix} Ejecutando migración v1 → v2 (Backend Sync)...');
     }
 
     try {
@@ -112,7 +113,7 @@ class DatabaseMigration {
       });
 
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ✅ Migración v2 completada');
+        MyLogger.log('${DatabaseConfig.logPrefix} ✅ Migración v2 completada');
       }
     } catch (e) {
       throw MigrationException('Error en migración v2: $e');
@@ -126,7 +127,7 @@ class DatabaseMigration {
   /// Migración a versión 3: Ejemplo para futuras mejoras
   static Future<void> _migrateToV3(Database db) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} Ejecutando migración v2 → v3...');
+      MyLogger.log('${DatabaseConfig.logPrefix} Ejecutando migración v2 → v3...');
     }
 
     try {
@@ -156,7 +157,7 @@ class DatabaseMigration {
       ''');
 
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ✅ Migración v3 completada');
+        MyLogger.log('${DatabaseConfig.logPrefix} ✅ Migración v3 completada');
       }
     } catch (e) {
       throw MigrationException('Error en migración v3: $e');
@@ -173,7 +174,7 @@ class DatabaseMigration {
       await db.execute('SAVEPOINT $name;');
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Savepoint "$name" creado');
+        MyLogger.log('${DatabaseConfig.logPrefix} Savepoint "$name" creado');
       }
     } catch (e) {
       throw MigrationException('Error creando savepoint $name: $e');
@@ -186,12 +187,12 @@ class DatabaseMigration {
       await db.execute('RELEASE SAVEPOINT $name;');
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Savepoint "$name" liberado');
+        MyLogger.log('${DatabaseConfig.logPrefix} Savepoint "$name" liberado');
       }
     } catch (e) {
       // No es crítico si falla la liberación
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ⚠️ Error liberando savepoint $name: $e');
+        MyLogger.log('${DatabaseConfig.logPrefix} ⚠️ Error liberando savepoint $name: $e');
       }
     }
   }
@@ -202,7 +203,7 @@ class DatabaseMigration {
       await db.execute('ROLLBACK TO SAVEPOINT $name;');
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Rollback a savepoint "$name" ejecutado');
+        MyLogger.log('${DatabaseConfig.logPrefix} Rollback a savepoint "$name" ejecutado');
       }
     } catch (e) {
       throw MigrationException('Error en rollback a savepoint $name: $e');
@@ -220,7 +221,7 @@ class DatabaseMigration {
       
       if (version != targetVersion) {
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} ❌ Versión esperada: $targetVersion, actual: $version');
+          MyLogger.log('${DatabaseConfig.logPrefix} ❌ Versión esperada: $targetVersion, actual: $version');
         }
         return false;
       }
@@ -231,7 +232,7 @@ class DatabaseMigration {
       
       if (integrity != 'ok') {
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} ❌ Integridad comprometida después de migración: $integrity');
+          MyLogger.log('${DatabaseConfig.logPrefix} ❌ Integridad comprometida después de migración: $integrity');
         }
         return false;
       }
@@ -246,20 +247,20 @@ class DatabaseMigration {
         
         if (tables.length < 2) {
           if (DatabaseConfig.enableSqlLogging) {
-            print('${DatabaseConfig.logPrefix} ❌ Tablas principales no encontradas');
+            MyLogger.log('${DatabaseConfig.logPrefix} ❌ Tablas principales no encontradas');
           }
           return false;
         }
       }
 
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ✅ Migración verificada correctamente');
+        MyLogger.log('${DatabaseConfig.logPrefix} ✅ Migración verificada correctamente');
       }
       
       return true;
     } catch (e) {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ❌ Error verificando migración: $e');
+        MyLogger.log('${DatabaseConfig.logPrefix} ❌ Error verificando migración: $e');
       }
       return false;
     }
@@ -276,13 +277,13 @@ class DatabaseMigration {
       // Por ahora retornamos null, pero se puede expandir
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Backup antes de migración (pendiente implementar)');
+        MyLogger.log('${DatabaseConfig.logPrefix} Backup antes de migración (pendiente implementar)');
       }
       
       return null;
     } catch (e) {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ⚠️ Error creando backup: $e');
+        MyLogger.log('${DatabaseConfig.logPrefix} ⚠️ Error creando backup: $e');
       }
       return null;
     }
@@ -300,12 +301,12 @@ class DatabaseMigration {
       await db.execute('ANALYZE;');
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ✅ Limpieza post-migración completada');
+        MyLogger.log('${DatabaseConfig.logPrefix} ✅ Limpieza post-migración completada');
       }
     } catch (e) {
       // No es crítico si falla la limpieza
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ⚠️ Error en limpieza post-migración: $e');
+        MyLogger.log('${DatabaseConfig.logPrefix} ⚠️ Error en limpieza post-migración: $e');
       }
     }
   }

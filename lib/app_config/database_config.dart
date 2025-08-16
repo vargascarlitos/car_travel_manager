@@ -1,3 +1,8 @@
+export 'database/database_config.dart';
+export 'database/database_helper.dart';
+export 'database/database_migration.dart';
+export 'database/database_tables.dart';
+
 /// Configuración de base de datos para TaxiMeter Pro
 /// 
 /// Punto de entrada principal para toda la configuración de SQLite.
@@ -11,11 +16,7 @@
 /// await db.database; // Inicializar
 /// ```
 
-// Exportar todas las configuraciones de base de datos
-export 'database/database_config.dart';
-export 'database/database_helper.dart';
-export 'database/database_migration.dart';
-export 'database/database_tables.dart';
+
 
 // Re-exportar SQLite para conveniencia
 export 'package:sqflite/sqflite.dart' show

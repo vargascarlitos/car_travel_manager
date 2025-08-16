@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:car_travel_manager/app_config/utils/logger.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -40,7 +41,7 @@ class DatabaseHelper {
       final String path = join(documentsDirectory.path, DatabaseConfig.databaseName);
 
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Inicializando base de datos en: $path');
+        MyLogger.log('${DatabaseConfig.logPrefix} Inicializando base de datos en: $path');
       }
 
       // Abrir/crear base de datos
@@ -65,7 +66,7 @@ class DatabaseHelper {
   /// Configuración inicial de la base de datos
   Future<void> _onConfigure(Database db) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} Configurando base de datos...');
+      MyLogger.log('${DatabaseConfig.logPrefix} Configurando base de datos...');
     }
 
     // Habilitar foreign keys
@@ -84,7 +85,7 @@ class DatabaseHelper {
   /// Creación inicial de la base de datos
   Future<void> _onCreate(Database db, int version) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} Creando base de datos versión $version...');
+      MyLogger.log('${DatabaseConfig.logPrefix} Creando base de datos versión $version...');
     }
 
     try {
@@ -92,7 +93,7 @@ class DatabaseHelper {
       for (String script in DatabaseTables.allCreateTableScripts) {
         await db.execute(script);
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} Tabla creada');
+          MyLogger.log('${DatabaseConfig.logPrefix} Tabla creada');
         }
       }
 
@@ -100,7 +101,7 @@ class DatabaseHelper {
       for (String script in DatabaseTables.allIndexScripts) {
         await db.execute(script);
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} Índice creado');
+          MyLogger.log('${DatabaseConfig.logPrefix} Índice creado');
         }
       }
 
@@ -108,12 +109,12 @@ class DatabaseHelper {
       for (String script in DatabaseTables.allTriggerScripts) {
         await db.execute(script);
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} Trigger creado');
+          MyLogger.log('${DatabaseConfig.logPrefix} Trigger creado');
         }
       }
 
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Base de datos creada exitosamente');
+        MyLogger.log('${DatabaseConfig.logPrefix} Base de datos creada exitosamente');
       }
     } catch (e) {
       throw DatabaseException('Error al crear base de datos: $e');
@@ -123,14 +124,14 @@ class DatabaseHelper {
   /// Migración de base de datos
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} Migrando base de datos de v$oldVersion a v$newVersion...');
+      MyLogger.log('${DatabaseConfig.logPrefix} Migrando base de datos de v$oldVersion a v$newVersion...');
     }
 
     try {
       await DatabaseMigration.migrate(db, oldVersion, newVersion);
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Migración completada exitosamente');
+        MyLogger.log('${DatabaseConfig.logPrefix} Migración completada exitosamente');
       }
     } catch (e) {
       throw DatabaseException('Error al migrar base de datos: $e');
@@ -140,7 +141,7 @@ class DatabaseHelper {
   /// Downgrade de base de datos (evitar si es posible)
   Future<void> _onDowngrade(Database db, int oldVersion, int newVersion) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} ⚠️ Downgrade de v$oldVersion a v$newVersion');
+      MyLogger.log('${DatabaseConfig.logPrefix} ⚠️ Downgrade de v$oldVersion a v$newVersion');
     }
     
     // En producción, evitar downgrades
@@ -150,7 +151,7 @@ class DatabaseHelper {
   /// Callback cuando la base de datos se abre
   Future<void> _onOpen(Database db) async {
     if (DatabaseConfig.enableSqlLogging) {
-      print('${DatabaseConfig.logPrefix} Base de datos abierta exitosamente');
+      MyLogger.log('${DatabaseConfig.logPrefix} Base de datos abierta exitosamente');
     }
 
     // Verificar integridad
@@ -172,11 +173,11 @@ class DatabaseHelper {
       }
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ✅ Integridad verificada');
+        MyLogger.log('${DatabaseConfig.logPrefix} ✅ Integridad verificada');
       }
     } catch (e) {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ⚠️ Error verificando integridad: $e');
+        MyLogger.log('${DatabaseConfig.logPrefix} ⚠️ Error verificando integridad: $e');
       }
     }
   }
@@ -188,7 +189,7 @@ class DatabaseHelper {
       _database = null;
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Base de datos cerrada');
+        MyLogger.log('${DatabaseConfig.logPrefix} Base de datos cerrada');
       }
     }
   }
@@ -205,7 +206,7 @@ class DatabaseHelper {
         await file.delete();
         
         if (DatabaseConfig.enableSqlLogging) {
-          print('${DatabaseConfig.logPrefix} Base de datos eliminada');
+          MyLogger.log('${DatabaseConfig.logPrefix} Base de datos eliminada');
         }
       }
     } catch (e) {
@@ -263,7 +264,7 @@ class DatabaseHelper {
     
     try {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Query: $table WHERE $where');
+        MyLogger.log('${DatabaseConfig.logPrefix} Query: $table WHERE $where');
       }
       
       return await db.query(
@@ -289,7 +290,7 @@ class DatabaseHelper {
     
     try {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Insert: $table');
+        MyLogger.log('${DatabaseConfig.logPrefix} Insert: $table');
       }
       
       return await db.insert(
@@ -313,7 +314,7 @@ class DatabaseHelper {
     
     try {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Update: $table WHERE $where');
+        MyLogger.log('${DatabaseConfig.logPrefix} Update: $table WHERE $where');
       }
       
       return await db.update(
@@ -337,7 +338,7 @@ class DatabaseHelper {
     
     try {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Delete: $table WHERE $where');
+        MyLogger.log('${DatabaseConfig.logPrefix} Delete: $table WHERE $where');
       }
       
       return await db.delete(
@@ -360,14 +361,14 @@ class DatabaseHelper {
     
     try {
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} Optimizando base de datos...');
+        MyLogger.log('${DatabaseConfig.logPrefix} Optimizando base de datos...');
       }
       
       await db.execute('VACUUM;');
       await db.execute('ANALYZE;');
       
       if (DatabaseConfig.enableSqlLogging) {
-        print('${DatabaseConfig.logPrefix} ✅ Optimización completada');
+        MyLogger.log('${DatabaseConfig.logPrefix} ✅ Optimización completada');
       }
     } catch (e) {
       throw DatabaseException('Error al optimizar base de datos: $e');

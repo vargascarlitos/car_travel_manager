@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/entities/trip.dart';
 import '../../../domain/repositories/trip_repository.dart';
 import '../../../app_config/router_config.dart';
 import '../../bloc/preview/preview_cubit.dart';

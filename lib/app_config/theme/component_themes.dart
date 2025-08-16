@@ -304,14 +304,14 @@ class ComponentThemes {
   // ========================================
 
   static final SwitchThemeData switchTheme = SwitchThemeData(
-    thumbColor: MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    thumbColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return AppColors.onPrimary;
       }
       return AppColors.outline;
     }),
-    trackColor: MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    trackColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return AppColors.primary;
       }
       return AppColors.surfaceVariant;
@@ -323,13 +323,13 @@ class ComponentThemes {
   // ========================================
 
   static final CheckboxThemeData checkboxTheme = CheckboxThemeData(
-    fillColor: MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    fillColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return AppColors.primary;
       }
       return Colors.transparent;
     }),
-    checkColor: MaterialStateProperty.all(AppColors.onPrimary),
+    checkColor: WidgetStateProperty.all(AppColors.onPrimary),
     side: const BorderSide(
       color: AppColors.outline,
       width: 2,
@@ -344,8 +344,8 @@ class ComponentThemes {
   // ========================================
 
   static final RadioThemeData radioTheme = RadioThemeData(
-    fillColor: MaterialStateProperty.resolveWith((states) {
-      if (states.contains(MaterialState.selected)) {
+    fillColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.selected)) {
         return AppColors.primary;
       }
       return AppColors.outline;

@@ -111,7 +111,7 @@ class AppTheme {
       
       // Configuración de extension themes
       extensions: <ThemeExtension<dynamic>>[
-        _TaxiMeterThemeExtension(),
+        TaxiMeterThemeExtension(),
       ],
     );
   }
@@ -176,8 +176,8 @@ class AppTheme {
 // ========================================
 
 /// Extensión de tema personalizada para elementos específicos de TaxiMeter
-class _TaxiMeterThemeExtension extends ThemeExtension<_TaxiMeterThemeExtension> {
-  const _TaxiMeterThemeExtension({
+class TaxiMeterThemeExtension extends ThemeExtension<TaxiMeterThemeExtension> {
+  const TaxiMeterThemeExtension({
     this.timerCardColor = AppColors.primaryContainer,
     this.currencyHighlightColor = AppColors.currencyAmount,
     this.ratingStarColor = AppColors.ratingGold,
@@ -192,14 +192,14 @@ class _TaxiMeterThemeExtension extends ThemeExtension<_TaxiMeterThemeExtension> 
   final TripStatusColors tripStatusColors;
 
   @override
-  ThemeExtension<_TaxiMeterThemeExtension> copyWith({
+  ThemeExtension<TaxiMeterThemeExtension> copyWith({
     Color? timerCardColor,
     Color? currencyHighlightColor,
     Color? ratingStarColor,
     Color? ratingEmptyColor,
     TripStatusColors? tripStatusColors,
   }) {
-    return _TaxiMeterThemeExtension(
+    return TaxiMeterThemeExtension(
       timerCardColor: timerCardColor ?? this.timerCardColor,
       currencyHighlightColor: currencyHighlightColor ?? this.currencyHighlightColor,
       ratingStarColor: ratingStarColor ?? this.ratingStarColor,
@@ -209,15 +209,15 @@ class _TaxiMeterThemeExtension extends ThemeExtension<_TaxiMeterThemeExtension> 
   }
 
   @override
-  ThemeExtension<_TaxiMeterThemeExtension> lerp(
-    ThemeExtension<_TaxiMeterThemeExtension>? other,
+  ThemeExtension<TaxiMeterThemeExtension> lerp(
+    ThemeExtension<TaxiMeterThemeExtension>? other,
     double t,
   ) {
-    if (other is! _TaxiMeterThemeExtension) {
+    if (other is! TaxiMeterThemeExtension) {
       return this;
     }
     
-    return _TaxiMeterThemeExtension(
+    return TaxiMeterThemeExtension(
       timerCardColor: Color.lerp(timerCardColor, other.timerCardColor, t)!,
       currencyHighlightColor: Color.lerp(currencyHighlightColor, other.currencyHighlightColor, t)!,
       ratingStarColor: Color.lerp(ratingStarColor, other.ratingStarColor, t)!,
@@ -261,6 +261,6 @@ class TripStatusColors {
 
 /// Extensión para acceso fácil a temas personalizados
 extension TaxiMeterThemeData on ThemeData {
-  _TaxiMeterThemeExtension get taxiMeter => 
-      extension<_TaxiMeterThemeExtension>() ?? const _TaxiMeterThemeExtension();
+  TaxiMeterThemeExtension get taxiMeter => 
+      extension<TaxiMeterThemeExtension>() ?? const TaxiMeterThemeExtension();
 }

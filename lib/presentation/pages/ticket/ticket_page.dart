@@ -124,7 +124,7 @@ class _TicketView extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 100),
 
           // Resumen simple (sin card vistoso)
           _SummaryRow(

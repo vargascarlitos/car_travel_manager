@@ -1,3 +1,6 @@
+export 'theme_config.dart';
+export 'database_config.dart';
+export 'router_config.dart';
 /// Configuración principal de TaxiMeter Pro
 /// 
 /// Punto de entrada unificado para toda la configuración de la aplicación:
@@ -15,17 +18,5 @@
 /// AppRouter.generateRoute
 /// ```
 
-// ========================================
-// CONFIGURACIÓN DE TEMA
-// ========================================
-export 'theme_config.dart';
 
-// ========================================
-// CONFIGURACIÓN DE BASE DE DATOS
-// ========================================
-export 'database_config.dart';
 
-// ========================================
-// CONFIGURACIÓN DE ROUTER
-// ========================================
-export 'router_config.dart';

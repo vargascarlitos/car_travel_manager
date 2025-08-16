@@ -74,7 +74,6 @@ class _ModifyTripPageState extends State<ModifyTripPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Modificar viaje'),

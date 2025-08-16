@@ -232,7 +232,7 @@ class _FareAmountField extends StatelessWidget {
                   (value) =>
                       value!.isEmpty
                           ? state.fareAmount.errorMessage
-                          : null, // TODO: validar rango
+                          : null,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: colors.onSurface,
               ),
@@ -298,7 +298,7 @@ class _ServiceTypeTile extends StatelessWidget {
       buildWhen: (p, c) => p.serviceType != c.serviceType,
       builder: (context, state) {
         final bool isSelected = state.serviceType == type;
-        final Color bg = isSelected ? colors.primary : colors.surfaceVariant;
+        final Color bg = isSelected ? colors.primary : colors.surfaceContainerHighest;
         final Color fg =
             isSelected ? colors.onPrimary : colors.onSurfaceVariant;
         final Color border = isSelected ? colors.primary : colors.outline;

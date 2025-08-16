@@ -63,7 +63,7 @@ class _ActiveTripViewState extends State<_ActiveTripView> {
         '/trip-modify',
         arguments: {'tripId': tripId},
       );
-      if (mounted && result == true) {
+      if (context.mounted && result == true) {
         await context.read<ActiveTripCubit>().refreshTrip();
       }
     }
@@ -186,7 +186,7 @@ class _CarAnimationCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return Card(
-      color: colors.surfaceVariant,
+      color: colors.surfaceContainerHighest,
       child: SizedBox(
         height: 140,
         child: Center(
