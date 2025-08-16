@@ -18,52 +18,62 @@ class TicketPage extends StatelessWidget {
         (args is Map && args['tripId'] is String)
             ? args['tripId'] as String
             : null;
-    return Scaffold(
-      appBar: AppBar(title: const Text('VIAJE COMPLETADO'), centerTitle: true),
-      body: SafeArea(
-        child:
-            tripId == null
-                ? const _TicketError(message: 'Falta el identificador de viaje')
-                : FutureBuilder<Trip?>(
-                  future: RepositoryProvider.of<TripRepository>(
-                    context,
-                  ).getTripById(tripId),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return const _TicketError(
-                        message: 'Error al cargar el ticket',
-                      );
-                    }
-                    final trip = snapshot.data;
-                    if (trip == null) {
-                      return const _TicketError(message: 'Viaje no encontrado');
-                    }
-                    return _TicketView(trip: trip);
-                  },
-                ),
-      ),
-      bottomNavigationBar:
-          tripId == null
-              ? null
-              : SafeArea(
-                minimum: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/review',
-                        arguments: {'tripId': tripId},
-                      );
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _confirmExit(context);
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('VIAJE COMPLETADO'), centerTitle: true),
+        body: SafeArea(
+          child:
+              tripId == null
+                  ? const _TicketError(message: 'Falta el identificador de viaje')
+                  : FutureBuilder<Trip?>(
+                    future: RepositoryProvider.of<TripRepository>(
+                      context,
+                    ).getTripById(tripId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (snapshot.hasError) {
+                        return const _TicketError(
+                          message: 'Error al cargar el ticket',
+                        );
+                      }
+                      final trip = snapshot.data;
+                      if (trip == null) {
+                        return const _TicketError(message: 'Viaje no encontrado');
+                      }
+                      return _TicketView(trip: trip);
                     },
-                    child: const Text('Siguiente'),
+                  ),
+        ),
+        bottomNavigationBar:
+            tripId == null
+                ? null
+                : SafeArea(
+                  minimum: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/review',
+                          arguments: {'tripId': tripId},
+                        );
+                      },
+                      child: const Text('Siguiente'),
+                    ),
                   ),
                 ),
-              ),
+      ),
     );
   }
 }
@@ -193,4 +203,30 @@ class _TicketError extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<bool> _confirmExit(BuildContext context) async {
+  final theme = Theme.of(context);
+  final colors = theme.colorScheme;
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        title: const Text('¿Salir de esta pantalla?'),
+        content: const Text('Si vuelves atrás podrías perder el progreso actual.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(colors.error)),
+            child: const Text('Salir'),
+          ),
+        ],
+      );
+    },
+  );
+  return result == true;
 }

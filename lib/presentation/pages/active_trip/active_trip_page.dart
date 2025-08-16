@@ -112,44 +112,54 @@ class _ActiveTripViewState extends State<_ActiveTripView> {
           );
         }
       },
-      child: Scaffold(
-        appBar: AppBar(),
-        body: SafeArea(
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onVerticalDragUpdate: (details) {
-              if (details.delta.dy > 0) {
-                _dragAccumulatedDy += details.delta.dy;
-              }
-            },
-            onVerticalDragEnd: (details) async {
-              await _navigateToModifyIfNeeded(
-                context,
-                velocity: details.primaryVelocity,
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const _SwipeDownIndicator(),
-                  const SizedBox(height: 12),
-                  // Título discreto en vez de cronómetro gigante
-                  Text(
-                    'Viaje en Curso',
-                    style: theme.textTheme.titleLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  const _CarAnimationCard(),
-                  const SizedBox(height: 16),
-                  const _TripInfoCard(),
-                  const Spacer(),
-                  _FinishSlideButton(
-                    onFinish: context.read<ActiveTripCubit>().finishTrip,
-                  ),
-                ],
+      child: PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          if (didPop) return;
+          final shouldPop = await _confirmExit(context);
+          if (shouldPop && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(),
+          body: SafeArea(
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onVerticalDragUpdate: (details) {
+                if (details.delta.dy > 0) {
+                  _dragAccumulatedDy += details.delta.dy;
+                }
+              },
+              onVerticalDragEnd: (details) async {
+                await _navigateToModifyIfNeeded(
+                  context,
+                  velocity: details.primaryVelocity,
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const _SwipeDownIndicator(),
+                    const SizedBox(height: 12),
+                    // Título discreto en vez de cronómetro gigante
+                    Text(
+                      'Viaje en Curso',
+                      style: theme.textTheme.titleLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    const _CarAnimationCard(),
+                    const SizedBox(height: 16),
+                    const _TripInfoCard(),
+                    const Spacer(),
+                    _FinishSlideButton(
+                      onFinish: context.read<ActiveTripCubit>().finishTrip,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -300,4 +310,30 @@ class _FinishSlideButton extends StatelessWidget {
       child: SlideButton(text: 'Finalizar viaje', onSlideCompleted: onFinish),
     );
   }
+}
+
+Future<bool> _confirmExit(BuildContext context) async {
+  final theme = Theme.of(context);
+  final colors = theme.colorScheme;
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        title: const Text('¿Salir de esta pantalla?'),
+        content: const Text('Si vuelves atrás podrías perder el progreso del viaje.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(colors.error)),
+            child: const Text('Salir'),
+          ),
+        ],
+      );
+    },
+  );
+  return result == true;
 }

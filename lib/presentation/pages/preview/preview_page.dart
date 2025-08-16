@@ -53,12 +53,22 @@ class PreviewView extends StatelessWidget {
     final colors = theme.colorScheme;
 
     if (tripId == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Previsualización'), centerTitle: true),
-        body: Center(
-          child: Text(
-            'Sin identificador de viaje',
-            style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          final shouldPop = await _confirmExit(context);
+          if (shouldPop && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Previsualización'), centerTitle: true),
+          body: Center(
+            child: Text(
+              'Sin identificador de viaje',
+              style: theme.textTheme.bodyLarge?.copyWith(color: colors.onSurface),
+            ),
           ),
         ),
       );
@@ -67,48 +77,84 @@ class PreviewView extends StatelessWidget {
     // Dispara carga al construir
     context.read<PreviewCubit>().load(tripId!);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Confirmar Viaje'),
-        centerTitle: true,
-        iconTheme: IconThemeData(color: colors.onSurfaceVariant),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: BlocBuilder<PreviewCubit, PreviewState>(
-            buildWhen: (p, c) => p.status != c.status || p.trip != c.trip,
-            builder: (context, state) {
-              if (state.status == PreviewStatus.loading || state.status == PreviewStatus.initial) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state.status == PreviewStatus.failure) {
-                return Center(
-                  child: Text(
-                    state.failureMessage ?? 'Error cargando viaje',
-                    style: theme.textTheme.bodyLarge?.copyWith(color: colors.error),
-                  ),
-                );
-              }
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        final shouldPop = await _confirmExit(context);
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Confirmar Viaje'),
+          centerTitle: true,
+          iconTheme: IconThemeData(color: colors.onSurfaceVariant),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: BlocBuilder<PreviewCubit, PreviewState>(
+              buildWhen: (p, c) => p.status != c.status || p.trip != c.trip,
+              builder: (context, state) {
+                if (state.status == PreviewStatus.loading || state.status == PreviewStatus.initial) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state.status == PreviewStatus.failure) {
+                  return Center(
+                    child: Text(
+                      state.failureMessage ?? 'Error cargando viaje',
+                      style: theme.textTheme.bodyLarge?.copyWith(color: colors.error),
+                    ),
+                  );
+                }
 
-              return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: const [
-                    _HeaderReadyCard(),
-                    SizedBox(height: 16),
-                    _PassengerCard(),
-                    SizedBox(height: 16),
-                    _ServiceTypeCard(),
-                    Spacer(),
-                    _EditAndStartButtons(),
-                  ],
-                );
-            },
+                return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: const [
+                      _HeaderReadyCard(),
+                      SizedBox(height: 16),
+                      _PassengerCard(),
+                      SizedBox(height: 16),
+                      _ServiceTypeCard(),
+                      Spacer(),
+                      _EditAndStartButtons(),
+                    ],
+                  );
+              },
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+Future<bool> _confirmExit(BuildContext context) async {
+  final theme = Theme.of(context);
+  final colors = theme.colorScheme;
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        title: const Text('¿Salir de esta pantalla?'),
+        content: const Text('Si vuelves atrás podrías perder el progreso actual.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(colors.error)),
+            child: const Text('Salir'),
+          ),
+        ],
+      );
+    },
+  );
+  return result == true;
 }
 
 class _HeaderReadyCard extends StatelessWidget {

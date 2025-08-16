@@ -31,103 +31,139 @@ class _ReviewView extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    return BlocListener<ReviewCubit, ReviewState>(
-      listenWhen: (p, c) => p.status != c.status,
-      listener: (context, state) {
-        if (state.status == ReviewStatus.failure && state.failureMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.failureMessage!), backgroundColor: colors.error),
-          );
-        }
-        if (state.status == ReviewStatus.success) {
-          Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final shouldPop = await _confirmExit(context);
+        if (shouldPop && context.mounted) {
+          Navigator.of(context).pop();
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Reseña del Viaje'),
-          centerTitle: true,
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Califica tu viaje', style: theme.textTheme.titleLarge),
-                const SizedBox(height: 12),
-                Center(
-                  child: BlocBuilder<ReviewCubit, ReviewState>(
-                    buildWhen: (p, c) => p.rating != c.rating,
+      child: BlocListener<ReviewCubit, ReviewState>(
+        listenWhen: (p, c) => p.status != c.status,
+        listener: (context, state) {
+          if (state.status == ReviewStatus.failure && state.failureMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.failureMessage!), backgroundColor: colors.error),
+            );
+          }
+          if (state.status == ReviewStatus.success) {
+            Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+          }
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Reseña del Viaje'),
+            centerTitle: true,
+          ),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Califica tu viaje', style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 12),
+                  Center(
+                    child: BlocBuilder<ReviewCubit, ReviewState>(
+                      buildWhen: (p, c) => p.rating != c.rating,
+                      builder: (context, state) {
+                        return RatingBar.builder(
+                          initialRating: state.rating.toDouble(),
+                          minRating: 1,
+                          allowHalfRating: false,
+                          itemCount: 5,
+                          itemSize: 40,
+                          itemPadding: const EdgeInsets.symmetric(horizontal: 4),
+                          itemBuilder: (context, _) => Icon(Icons.star, color: colors.tertiary),
+                          onRatingUpdate: (value) => context.read<ReviewCubit>().ratingChanged(value.toInt()),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  BlocBuilder<ReviewCubit, ReviewState>(
+                    buildWhen: (p, c) => p.rating != c.rating || p.comment != c.comment,
                     builder: (context, state) {
-                      return RatingBar.builder(
-                        initialRating: state.rating.toDouble(),
-                        minRating: 1,
-                        allowHalfRating: false,
-                        itemCount: 5,
-                        itemSize: 40,
-                        itemPadding: const EdgeInsets.symmetric(horizontal: 4),
-                        itemBuilder: (context, _) => Icon(Icons.star, color: colors.tertiary),
-                        onRatingUpdate: (value) => context.read<ReviewCubit>().ratingChanged(value.toInt()),
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 250),
+                        switchInCurve: Curves.easeOutCubic,
+                        switchOutCurve: Curves.easeInCubic,
+                        child: state.rating < 1
+                            ? const SizedBox.shrink()
+                            : Column(
+                                key: const ValueKey('comments-section'),
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Text('Comentarios (opcional)', style: theme.textTheme.titleMedium),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    maxLines: 5,
+                                    onChanged: context.read<ReviewCubit>().commentChanged,
+                                    decoration: InputDecoration(
+                                      hintText: 'Escribe tu comentario (máx. 1000)',
+                                      counterText: '${state.comment.length}/1000',
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
+                              ),
                       );
                     },
                   ),
-                ),
-                const SizedBox(height: 24),
-                BlocBuilder<ReviewCubit, ReviewState>(
-                  buildWhen: (p, c) => p.rating != c.rating || p.comment != c.comment,
-                  builder: (context, state) {
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 250),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeInCubic,
-                      child: state.rating < 1
-                          ? const SizedBox.shrink()
-                          : Column(
-                              key: const ValueKey('comments-section'),
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text('Comentarios (opcional)', style: theme.textTheme.titleMedium),
-                                const SizedBox(height: 8),
-                                TextField(
-                                  maxLines: 5,
-                                  onChanged: context.read<ReviewCubit>().commentChanged,
-                                  decoration: InputDecoration(
-                                    hintText: 'Escribe tu comentario (máx. 1000)',
-                                    counterText: '${state.comment.length}/1000',
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                              ],
-                            ),
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        bottomNavigationBar: SafeArea(
-          minimum: const EdgeInsets.all(16),
-          child: BlocBuilder<ReviewCubit, ReviewState>(
-            buildWhen: (p, c) => p.status != c.status || p.rating != c.rating,
-            builder: (context, state) {
-              final saving = state.status == ReviewStatus.loading;
-              return SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: state.rating >= 1 && !saving ? context.read<ReviewCubit>().save : null,
-                  child: saving
-                      ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Guardar reseña'),
-                ),
-              );
-            },
+          bottomNavigationBar: SafeArea(
+            minimum: const EdgeInsets.all(16),
+            child: BlocBuilder<ReviewCubit, ReviewState>(
+              buildWhen: (p, c) => p.status != c.status || p.rating != c.rating,
+              builder: (context, state) {
+                final saving = state.status == ReviewStatus.loading;
+                return SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: state.rating >= 1 && !saving ? context.read<ReviewCubit>().save : null,
+                    child: saving
+                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Guardar reseña'),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
+}
+
+Future<bool> _confirmExit(BuildContext context) async {
+  final theme = Theme.of(context);
+  final colors = theme.colorScheme;
+  final result = await showDialog<bool>(
+    context: context,
+    builder: (ctx) {
+      return AlertDialog(
+        title: const Text('¿Salir de esta pantalla?'),
+        content: const Text('Si vuelves atrás podrías perder el progreso actual.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: ButtonStyle(backgroundColor: WidgetStatePropertyAll(colors.error)),
+            child: const Text('Salir'),
+          ),
+        ],
+      );
+    },
+  );
+  return result == true;
 }
 
 
