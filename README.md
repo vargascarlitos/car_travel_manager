@@ -1,160 +1,106 @@
 # Car Travel Manager 🚗
 
-Una aplicación móvil tipo taxímetro desarrollada en Flutter para conductores independientes que operan fuera de plataformas como Uber/Bolt.
+Aplicación tipo taxímetro en Flutter con arquitectura Clean, offline-first y UI MD3 dark “Bolt”.
 
-## 📱 Descripción
+## ✨ Estado actual (entregable)
 
-Car Travel Manager es una herramienta digital profesional que permite a los conductores registrar y gestionar viajes de manera transparente, brindando a los pasajeros un comprobante detallado del servicio prestado.
+- Offline-first 100% (SQLite como única fuente de datos)
+- Clean Architecture (data/domain/presentation) sin casos de uso, repositorios directos
+- State management con flutter_bloc (Cubit/Bloc) + Formz (formularios)
+- Theme MD3 “Bolt Dark” centralizado (usar siempre `Theme.of(context)`)
+- Historial agrupado por día con secciones colapsables y paginación
+- Paginación con `throttleDroppable` (stream_transform + bloc_concurrency)
+- Protección de back con PopScope + confirmación en pantallas críticas
+- Página de recuperación de viajes pendientes
 
-## ✨ Características Principales
-
-- 🎯 **Completamente Offline** - No requiere conexión a internet
-- ⏱️ **Cronómetro de Precisión** - Medición exacta del tiempo de viaje
-- 🧾 **Tickets Profesionales** - Comprobantes claros para los pasajeros
-- 📊 **Historial Completo** - Registro de todos los viajes realizados
-- ⭐ **Sistema de Reseñas** - Auto-evaluación del conductor
-- 🌙 **Modo Nocturno** - Interfaz adaptada para uso nocturno
-- 📝 **Modificación en Tiempo Real** - Editar datos durante el viaje
-
-## 🛠️ Tecnologías
-
-- **Framework:** Flutter
-- **Base de Datos:** SQLite (local)
-- **Arquitectura:** BLoC Pattern
-- **UI/UX:** Material Design 3
-- **Plataforma:** Android (API 24+)
-
-## 📋 Requerimientos del Sistema
-
-- Android 7.0 (API nivel 24) o superior
-- Mínimo 2GB de RAM
-- Resolución de pantalla desde 720p hasta 1440p
-- Espacio de almacenamiento: <50MB
-
-## 🚀 Instalación
-
-### Prerrequisitos
-- Flutter SDK (3.0+)
-- Android Studio / VS Code
-- Android SDK
-
-### Pasos de Instalación
-
-1. **Clonar el repositorio**
-   ```bash
-   git clone git@github.com:vargascarlitos/car_travel_manager.git
-   cd car_travel_manager
-   ```
-
-2. **Instalar dependencias**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Ejecutar la aplicación**
-   ```bash
-   flutter run
-   ```
-
-4. **Generar APK para producción**
-   ```bash
-   flutter build apk --release
-   ```
-
-## 📱 Pantallas Principales
-
-### 1. Carga de Datos
-- Ingreso de nombre del pasajero
-- Establecimiento de tarifa (moneda paraguaya Gs)
-- Selección de tipo de servicio
-
-### 2. Previsualización
-- Verificación de datos antes del inicio
-- Botón deslizable para iniciar viaje
-
-### 3. Viaje en Curso
-- Cronómetro en tiempo real
-- Animación de automóvil
-- Modificación de datos durante el viaje
-
-### 4. Ticket/Resultado
-- Comprobante profesional del viaje
-- Información completa del servicio
-
-### 5. Auto Reseña
-- Calificación con sistema de 5 estrellas
-- Comentarios opcionales del conductor
-
-### 6. Historial
-- Lista de todos los viajes realizados
-- Estadísticas de ganancias
-- Detalle completo de cada viaje
-
-## 🏗️ Arquitectura
+## 🗂️ Estructura de carpetas
 
 ```
 lib/
-├── main.dart
-├── core/
-│   ├── constants/
-│   ├── utils/
-│   └── themes/
+├── app_config/
+│   ├── theme/              # Bolt Dark Theme (MD3)
+│   ├── database/           # SQLite (helper, tablas, migraciones)
+│   ├── router_config.dart  # Rutas (Navigator 1)
+│   └── utils/              # Formatters y helpers
 ├── data/
-│   ├── models/
-│   ├── repositories/
-│   └── datasources/
+│   ├── datasources/        # SQLite datasource
+│   ├── models/             # Modelos persistencia
+│   └── repositories/       # Implementaciones de repositorios
 ├── domain/
-│   ├── entities/
-│   ├── repositories/
-│   └── usecases/
+│   ├── entities/           # Entidades inmutables
+│   └── repositories/       # Contratos abstractos
 └── presentation/
-    ├── bloc/
-    ├── pages/
-    └── widgets/
+    ├── bloc/               # Cubits/Blocs por feature
+    ├── pages/              # Pages (Page→View→Components)
+    └── widgets/            # Widgets reutilizables
 ```
 
-## 🎨 Diseño
+## 🧭 Rutas y pantallas
 
-La aplicación sigue las directrices de **Material Design 3** con:
-- Paleta de colores **Bolt** (`#34D186` como color primario)
-- Tipografía **Roboto**
-- Componentes nativos de Flutter
-- Soporte para tema claro y oscuro
+- `/` NewTripPage (carga de datos)
+- `/preview` PreviewPage (confirmación). PopScope de advertencia.
+- `/trip-active` ActiveTripPage (viaje en curso, wakelock). PopScope de advertencia.
+- `/trip-modify` ModifyTripPage (edición durante viaje)
+- `/ticket` TicketPage (resumen). PopScope de advertencia.
+- `/review` ReviewPage (auto-reseña). PopScope de advertencia.
+- `/history` HistoryPage (agrupado por día, colapsable, paginado con throttle)
+- `/trip-detail` TripDetailPage (detalle)
+- `/pending-recovery` PendingRecoveryPage (recuperar viajes `pending`)
 
-## 📊 Funcionalidades
+## 🏛️ Patrones de presentación (VGV-compliant)
 
-### Gestión de Viajes
-- ✅ Cronómetro de alta precisión
-- ✅ Formateo automático de moneda paraguaya
-- ✅ Validación de formularios en tiempo real
-- ✅ Persistencia local con SQLite
+- Page: StatelessWidget con BlocProvider + BlocListener (solo navegación/side-effects)
+- View: StatelessWidget con Scaffold y layout
+- Components: StatelessWidget privados + BlocBuilder con `buildWhen` específico
+- Formz + Cubit State con `status` enum y `copyWith`
 
-### Experiencia de Usuario
-- ✅ Interfaz intuitiva y profesional
-- ✅ Navegación fluida con gestos
-- ✅ Feedback visual y táctil
-- ✅ Optimizado para uso durante la conducción
+## 🗃️ Datos (SQLite)
 
-### Seguridad y Privacidad
-- ✅ Datos almacenados localmente
-- ✅ No requiere permisos de internet
-- ✅ No necesita GPS ni sensores
-- ✅ Interfaz segura para mostrar a pasajeros
+- Tablas: `trips`, `reviews` con índices y triggers (ver `app_config/database/database_tables.dart`)
+- Migraciones gestionadas en `database_migration.dart`
+- Repositorio: `TripRepository` y `ReviewRepository` (contratos en domain, impl en data)
 
-## 🤝 Contribuciones
+Semillas (demo):
+- `DatabaseDemo.seedHistoryTrips(days: 7, perDay: 6)` crea viajes completados en varios días para probar agrupado.
 
-Este es un proyecto privado desarrollado para un cliente específico. Las contribuciones no están abiertas al público.
+## 🖌️ UI/Theme (Bolt Dark)
 
-## 📄 Licencia
+- Siempre usar `Theme.of(context)` para colores y tipografías
+- Componentes MD3 ya configurados (AppBar, Card, Buttons, TextField, etc.)
 
-Este proyecto es propiedad privada. Todos los derechos reservados.
+## 📈 Historial optimizado
 
-## 🏢 Contacto
+- Agrupado por día con cabeceras colapsables
+- Paginación por `limit/offset` desde repositorio
+- Scroll infinito con `NotificationListener`
+- `HistoryBloc` usa `throttleDroppable(Duration(milliseconds: 700))`
 
-**Desarrollador:** Carlos Vargas  
-**Cliente:** Ariel  
-**Proyecto:** Aplicación Taxímetro Flutter  
+## 🔐 Protecciones de UX
 
----
+- PopScope con confirmación al volver atrás en: Preview, ActiveTrip, Ticket, Review
+- Botón “warning” en NewTrip que abre `/pending-recovery` para retomar viajes `pending`
 
-*Desarrollado con ❤️ en Flutter para conductores independientes*
+## 🔧 Versiones y ejecución (dev)
+
+- Versiones recomendadas:
+  - Flutter 3.24+ (SDK estable)
+  - Dart 3.7+
+  - Verifica tu instalación: `flutter --version`
+- Pasos para ejecutar:
+  - `flutter clean && flutter pub get`
+  - Conecta un dispositivo/emulador y ejecuta: `flutter run`
+  - Para listar dispositivos: `flutter devices`
+
+## 🧪 Testing (lineamientos)
+
+- Tests de Cubits/Blocs con `bloc_test`
+- Widget tests en flujos críticos
+
+## 📝 Convenciones de commits
+
+- Angular Conventional Commits (español), ej.: `feat(history): agrupar por día con headers`
+
+## 📄 Notas finales
+
+- Arquitectura offline-first lista para futura sincronización
+- Sin dependencias de red; datos locales 100%
