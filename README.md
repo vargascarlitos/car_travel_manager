@@ -2,6 +2,21 @@
 
 Aplicación tipo taxímetro en Flutter con arquitectura Clean, offline-first y UI MD3 dark “Bolt”.
 
+  <img src="https://github.com/user-attachments/assets/3a29b353-1b1b-4b57-aa37-92decf77b86b" alt="Simulator Screenshot - iPhone SE (3rd generation) - 2024-09-20 at 00 57 59" width="200"/>
+
+  <img src="https://github.com/user-attachments/assets/2f3a54bf-54c7-4efb-8b14-a286e732599b" alt="Simulator Screenshot - iPhone SE (3rd generation) - 2024-09-20 at 00 58 19" width="200"/>
+
+  <img src="https://github.com/user-attachments/assets/632e2153-257a-468c-88a1-3f9716f944fe" alt="Simulator Screenshot - iPhone SE (3rd generation) - 2024-09-20 at 00 58 19" width="200"/>
+  
+  <img src="https://github.com/user-attachments/assets/6d257999-0303-40c4-9a0d-d1d743911f0c" alt="Simulator Screenshot - iPhone SE (3rd generation) - 2024-09-20 at 00 58 19" width="200"/>
+
+  <img src="https://github.com/user-attachments/assets/c0f482f8-8e06-47a3-9ba7-d2933c4b914b" alt="Simulator Screenshot - iPhone SE (3rd generation) - 2024-09-20 at 00 58 19" width="200"/>
+  
+  <img src="https://github.com/user-attachments/assets/7504d622-bf08-42a0-9b3f-40aed4775d61" alt="Simulator Screenshot - iPhone SE (3rd generation) - 2024-09-20 at 00 58 19" width="200"/>
+
+  <img src="https://github.com/user-attachments/assets/880a9c9d-1897-495c-82c6-42435999e1d0" alt="Simulator Screenshot - iPhone SE (3rd generation) - 2024-09-20 at 00 58 19" width="200"/>
+
+
 ## ✨ Estado actual (entregable)
 
 - Offline-first 100% (SQLite como única fuente de datos)
